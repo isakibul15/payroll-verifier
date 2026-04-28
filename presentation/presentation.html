@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ComplianceGuard — Azets × Kong 2026</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --white:#ffffff;--off:#f8fafc;--off2:#f1f5f9;
+  --border:#e2e8f0;--border2:#cbd5e1;
+  --text:#0f172a;--muted:#64748b;--muted2:#94a3b8;
+  --indigo:#6366f1;--indigo2:#4f46e5;--indigo-l:#eef2ff;--indigo-m:#c7d2fe;
+  --green:#16a34a;--green-l:#dcfce7;--green-m:#86efac;
+  --red:#dc2626;--red-l:#fee2e2;--red-m:#fca5a5;
+  --amber:#d97706;--amber-l:#fef3c7;--amber-m:#fde68a;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.06);
+  --shadow-lg:0 8px 32px rgba(99,102,241,.12),0 2px 8px rgba(0,0,0,.06);
+}
+html,body{width:100%;height:100%;background:#dde3f0;font-family:'Inter','Segoe UI',system-ui,sans-serif;color:var(--text);overflow:hidden;}
+
+/* Scale wrapper */
+#scale-wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;}
+#deck{position:relative;width:1280px;height:720px;transform-origin:50% 50%;}
+
+/* Slide */
+.slide{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  background:var(--white);border-radius:20px;overflow:hidden;
+  box-shadow:0 24px 80px rgba(0,0,0,.18);
+  opacity:0;pointer-events:none;
+}
+.slide.active{opacity:1;pointer-events:all;}
+
+/* Animations */
+.slide.enter-r{animation:slideInR .45s cubic-bezier(.22,.68,0,1.2) both;}
+.slide.enter-l{animation:slideInL .45s cubic-bezier(.22,.68,0,1.2) both;}
+.slide.exit-r {animation:slideOutR .35s cubic-bezier(.4,0,1,1) both;}
+.slide.exit-l {animation:slideOutL .35s cubic-bezier(.4,0,1,1) both;}
+@keyframes slideInR  {from{transform:translateX(60px);opacity:0}to{transform:none;opacity:1}}
+@keyframes slideInL  {from{transform:translateX(-60px);opacity:0}to{transform:none;opacity:1}}
+@keyframes slideOutR {from{transform:none;opacity:1}to{transform:translateX(-40px);opacity:0}}
+@keyframes slideOutL {from{transform:none;opacity:1}to{transform:translateX(40px);opacity:0}}
+
+/* Staggered reveal */
+.reveal>*{opacity:0;transform:translateY(16px);animation:revUp .5s ease both;}
+.reveal>*:nth-child(1){animation-delay:.04s}
+.reveal>*:nth-child(2){animation-delay:.11s}
+.reveal>*:nth-child(3){animation-delay:.18s}
+.reveal>*:nth-child(4){animation-delay:.25s}
+.reveal>*:nth-child(5){animation-delay:.32s}
+.reveal>*:nth-child(6){animation-delay:.39s}
+@keyframes revUp{to{opacity:1;transform:none}}
+
+/* Accent bar */
+.accent-bar{height:4px;background:linear-gradient(90deg,var(--indigo2) 0%,#a78bfa 50%,#06b6d4 100%);flex-shrink:0;}
+
+/* Header */
+.slide-header{display:flex;align-items:center;gap:14px;padding:13px 40px;border-bottom:1px solid var(--border);background:var(--white);flex-shrink:0;}
+.logo-mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--indigo2),#a78bfa);display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;font-weight:800;flex-shrink:0;}
+.logo-text{font-size:.85rem;font-weight:700;color:var(--text);}
+.badge-ai{margin-left:auto;font-size:.68rem;font-weight:600;padding:3px 10px;background:var(--indigo-l);color:var(--indigo2);border:1px solid var(--indigo-m);border-radius:99px;}
+.slide-num{font-size:.75rem;color:var(--muted2);font-weight:500;margin-left:10px;}
+
+/* Slide body */
+.slide-body{flex:1;display:flex;flex-direction:column;padding:38px 52px 34px;gap:18px;overflow:hidden;}
+
+/* Typography */
+.eyebrow{display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 12px;border-radius:99px;width:fit-content;}
+.ey-problem {background:var(--red-l);   color:var(--red);   border:1px solid #fecaca;}
+.ey-solution{background:var(--indigo-l);color:var(--indigo2);border:1px solid var(--indigo-m);}
+.ey-demo    {background:var(--green-l); color:var(--green); border:1px solid #bbf7d0;}
+.ey-benefit {background:#ecfdf5;        color:#065f46;      border:1px solid #a7f3d0;}
+.ey-arch    {background:#f0f9ff;        color:#0369a1;      border:1px solid #bae6fd;}
+.slide-title{font-size:2.35rem;font-weight:800;line-height:1.18;color:var(--text);letter-spacing:-.02em;}
+.slide-title .accent{color:var(--indigo2);}
+.slide-sub{font-size:1rem;color:var(--muted);line-height:1.65;max-width:780px;}
+
+/* Grid */
+.two-col  {display:grid;grid-template-columns:1fr 1fr;    gap:18px;flex:1;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;flex:1;}
+
+/* Card */
+.card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:20px 22px;display:flex;flex-direction:column;gap:9px;box-shadow:var(--shadow);transition:box-shadow .2s,transform .2s;}
+.card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px);}
+.card-icon{font-size:1.7rem;}
+.card h3{font-size:.93rem;font-weight:700;color:var(--text);}
+.card p{font-size:.82rem;color:var(--muted);line-height:1.6;}
+.card.red   {background:var(--red-l);   border-color:#fecaca;}
+.card.green {background:var(--green-l); border-color:#bbf7d0;}
+.card.indigo{background:var(--indigo-l);border-color:var(--indigo-m);}
+.card.amber {background:var(--amber-l); border-color:#fde68a;}
+.card.sky   {background:#f0f9ff;        border-color:#bae6fd;}
+
+/* Checklist */
+ul.check{list-style:none;display:flex;flex-direction:column;gap:9px;}
+ul.check li{display:flex;align-items:flex-start;gap:10px;font-size:.875rem;color:var(--text);line-height:1.5;}
+ul.check li .icon{flex-shrink:0;margin-top:1px;}
+ul.check li.ok   .icon{color:var(--green);}
+ul.check li.bad  .icon{color:var(--red);}
+ul.check li.warn .icon{color:var(--amber);}
+
+/* Layer rows */
+.layer-rows{display:flex;flex-direction:column;gap:10px;flex:1;}
+.layer-row{display:grid;grid-template-columns:52px 196px 1fr auto;align-items:stretch;background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);transition:box-shadow .2s,transform .2s;}
+.layer-row:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px);}
+.lr-num{display:flex;align-items:center;justify-content:center;font-size:1.45rem;font-weight:900;border-right:1px solid var(--border);}
+.lr-num.l1{background:var(--green-l);color:var(--green);}
+.lr-num.l2{background:var(--amber-l);color:var(--amber);}
+.lr-num.l3{background:var(--red-l);  color:var(--red);}
+.lr-name{display:flex;flex-direction:column;justify-content:center;padding:12px 16px;border-right:1px solid var(--border);font-size:.88rem;font-weight:700;color:var(--text);gap:3px;}
+.lr-name small{font-size:.71rem;font-weight:500;color:var(--muted);}
+.lr-desc{display:flex;align-items:center;padding:12px 18px;font-size:.82rem;color:var(--muted);line-height:1.5;}
+.lr-badge{display:flex;align-items:center;padding:12px 16px;}
+.lr-badge span{font-size:.67rem;font-weight:600;padding:3px 9px;background:var(--indigo-l);color:var(--indigo2);border:1px solid var(--indigo-m);border-radius:99px;white-space:nowrap;}
+
+/* Kong bar */
+.kong-bar{display:flex;align-items:center;gap:12px;background:linear-gradient(90deg,var(--indigo-l),#f0f9ff);border:1px solid var(--indigo-m);border-radius:12px;padding:13px 20px;}
+.kong-bar h3{font-size:.88rem;font-weight:700;color:var(--indigo2);white-space:nowrap;}
+.kong-chip{font-size:.69rem;padding:3px 10px;background:var(--white);border:1px solid var(--indigo-m);border-radius:99px;color:var(--indigo2);font-weight:600;white-space:nowrap;}
+.kong-note{font-size:.77rem;color:var(--muted);margin-left:auto;}
+
+/* Flow */
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.flow-node{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:8px 15px;font-size:.77rem;font-weight:600;color:var(--text);text-align:center;box-shadow:var(--shadow);transition:box-shadow .2s;}
+.flow-node:hover{box-shadow:var(--shadow-lg);}
+.flow-node.indigo{background:var(--indigo-l);border-color:var(--indigo-m);color:var(--indigo2);}
+.flow-node.green {background:var(--green-l); border-color:#bbf7d0;color:var(--green);}
+.flow-arr{color:var(--muted2);font-size:1.1rem;}
+
+/* Progress */
+#progress-track{position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--off2);}
+#progress-fill{height:100%;background:linear-gradient(90deg,var(--indigo2),#a78bfa,#06b6d4);border-radius:0 2px 0 0;transition:width .4s cubic-bezier(.4,0,.2,1);}
+
+/* Nav */
+#nav{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;z-index:200;}
+.nav-btn{width:42px;height:42px;border-radius:99px;background:rgba(255,255,255,.92);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.1);transition:background .15s,box-shadow .15s,transform .1s;user-select:none;backdrop-filter:blur(6px);}
+.nav-btn:hover{background:#fff;box-shadow:0 4px 16px rgba(99,102,241,.2);transform:scale(1.05);}
+.nav-btn:active{transform:scale(.95);}
+#slide-counter{background:rgba(255,255,255,.92);border:1px solid var(--border2);color:var(--muted);border-radius:99px;padding:7px 18px;font-size:.8rem;font-weight:600;min-width:72px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.1);backdrop-filter:blur(6px);}
+
+/* ── TITLE SLIDE ── */
+.title-slide .slide-body{
+  justify-content:center;padding:60px 80px;gap:24px;
+  background:radial-gradient(ellipse at 90% 10%,rgba(99,102,241,.07) 0%,transparent 55%),
+             radial-gradient(ellipse at 10% 90%,rgba(6,182,212,.06) 0%,transparent 50%),
+             var(--white);
+}
+.title-grid{display:grid;grid-template-columns:1fr 380px;gap:60px;align-items:center;}
+.title-headline{font-size:3.8rem;font-weight:900;line-height:1.06;letter-spacing:-.035em;color:var(--text);}
+.title-headline .grad{background:linear-gradient(135deg,var(--indigo2) 0%,#a78bfa 55%,#06b6d4 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.title-tagline{font-size:1rem;color:var(--muted);line-height:1.7;margin-top:8px;max-width:500px;}
+.title-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px;}
+.chip{font-size:.71rem;font-weight:600;padding:4px 11px;border-radius:99px;border:1px solid var(--border2);color:var(--muted);background:var(--off2);}
+.chip.indigo{background:var(--indigo-l);border-color:var(--indigo-m);color:var(--indigo2);}
+.title-right{display:flex;flex-direction:column;gap:14px;}
+.stat-mini{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:16px 20px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow);}
+.stat-mini:nth-child(1){animation:floatA 3.5s ease-in-out infinite;}
+.stat-mini:nth-child(2){animation:floatB 3.8s ease-in-out infinite;}
+.stat-mini:nth-child(3){animation:floatC 3.2s ease-in-out infinite;}
+@keyframes floatA{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes floatB{0%,100%{transform:translateY(-3px)}50%{transform:translateY(3px)}}
+@keyframes floatC{0%,100%{transform:translateY(2px)}50%{transform:translateY(-4px)}}
+.stat-mini .big{font-size:1.8rem;font-weight:900;color:var(--indigo2);}
+.stat-mini .lbl{font-size:.77rem;color:var(--muted);line-height:1.4;font-weight:500;}
+
+/* ── TEAM SECTION ── */
+.team-row{display:flex;gap:14px;margin-top:4px;}
+.team-names-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.team-name-pill{font-size:.67rem;font-weight:600;color:var(--indigo2);background:var(--indigo-l);border:1px solid var(--indigo-m);border-radius:20px;padding:3px 10px;white-space:nowrap;}
+.team-member{display:flex;flex-direction:column;align-items:center;gap:7px;flex:1;}
+.team-avatar{width:80px;height:80px;border-radius:50%;object-fit:cover;object-position:top;border:3px solid var(--white);box-shadow:0 0 0 2px var(--indigo-m),0 4px 14px rgba(99,102,241,.18);animation:floatA 3.6s ease-in-out infinite;}
+.team-member:nth-child(2) .team-avatar{animation-name:floatB;}
+.team-member:nth-child(3) .team-avatar{animation-name:floatC;}
+.team-name{font-size:.78rem;font-weight:700;color:var(--text);text-align:center;}
+.team-role{font-size:.67rem;color:var(--muted);text-align:center;}
+.team-stats{display:flex;gap:8px;margin-top:10px;}
+.team-stats .stat-mini{flex:1;padding:10px 12px;gap:8px;}
+.team-stats .stat-mini .big{font-size:1.4rem;}
+.team-stats .stat-mini .lbl{font-size:.68rem;}
+
+/* ── DEMO SLIDES ── */
+.demo-layout{flex-direction:row!important;gap:34px!important;align-items:flex-start;}
+.demo-sidebar{display:flex;flex-direction:column;gap:13px;width:272px;flex-shrink:0;}
+.demo-sidebar .slide-title{font-size:1.55rem;}
+.mockup{flex:1;background:var(--off);border:1px solid var(--border);border-radius:14px;display:flex;flex-direction:column;box-shadow:var(--shadow-lg);overflow:hidden;}
+.mockup-bar{display:flex;align-items:center;gap:6px;padding:9px 13px;background:var(--off2);border-bottom:1px solid var(--border);}
+.dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;}
+.dr{background:#ff5f57;box-shadow:0 0 0 .5px rgba(0,0,0,.18);}.dy{background:#febc2e;box-shadow:0 0 0 .5px rgba(0,0,0,.14);}.dg{background:#28c840;box-shadow:0 0 0 .5px rgba(0,0,0,.14);}
+
+/* ── FULL-SCREEN APP DEMO ── */
+.full-demo{flex:1;display:flex;flex-direction:column;gap:0;overflow:hidden;}
+.demo-label-bar{display:flex;align-items:center;gap:10px;padding:0 0 8px;flex-shrink:0;}
+/* Outer dark mat that frames the browser as a distinct artifact */
+.demo-mat{flex:1;min-height:0;position:relative;background:linear-gradient(145deg,#1e293b 0%,#0f172a 100%);border-radius:14px;padding:10px 10px 6px;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.35),0 4px 16px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.06);}
+.demo-mat-strip{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 4px 6px;}
+.demo-mat-label{font-size:.59rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.3);}
+.demo-mat-dots{display:flex;gap:4px;}
+.demo-mat-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.15);}
+.demo-browser{flex:1;min-height:0;position:relative;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(255,255,255,.08),0 8px 32px rgba(0,0,0,.5);display:flex;flex-direction:column;}
+.full-demo{flex:1;min-height:0;display:flex;flex-direction:column;gap:0;overflow:hidden;}
+.app-page{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;}
+.app-body{flex:1;min-height:0;overflow:hidden;display:flex;}
+.demo-chrome{display:flex;align-items:center;gap:6px;padding:9px 14px;background:linear-gradient(180deg,#3d3d3f 0%,#2d2d2f 100%);border-bottom:1px solid #1a1a1c;flex-shrink:0;}
+.demo-url-wrap{flex:1;display:flex;align-items:center;gap:5px;background:#1c1c1e;border:1px solid rgba(255,255,255,.1);border-radius:7px;padding:3px 10px;margin:0 8px;}
+.demo-url{flex:1;background:transparent;border:none;font-size:.67rem;color:rgba(255,255,255,.72);font-family:monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.demo-chrome-dots{display:flex;gap:5px;align-items:center;}
+.demo-chrome-nav{display:flex;gap:2px;margin-left:6px;}
+.demo-chrome-nav span{font-size:.75rem;color:rgba(255,255,255,.35);padding:0 3px;line-height:1;}
+.app-nav{display:flex;align-items:center;gap:0;padding:0 20px;height:44px;background:var(--white);border-bottom:1px solid var(--border);flex-shrink:0;}
+.app-nav-logo{display:flex;align-items:center;gap:7px;font-size:.82rem;font-weight:800;color:var(--text);margin-right:24px;}
+.app-nav-logo .nm{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,var(--indigo2),#a78bfa);display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:800;}
+.nav-tabs{display:flex;height:100%;}
+.nav-tab{display:flex;align-items:center;padding:0 14px;font-size:.75rem;font-weight:500;color:var(--muted);cursor:default;border-bottom:2px solid transparent;height:100%;}
+.nav-tab.active{color:var(--indigo2);border-bottom-color:var(--indigo2);font-weight:700;}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.nav-avatar{width:26px;height:26px;border-radius:50%;background:var(--indigo-l);border:1px solid var(--indigo-m);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:var(--indigo2);}
+/* Layer 1 */
+.l1-split{display:grid;grid-template-columns:2fr 3fr;height:100%;}
+.l1-upload{background:var(--off);border-right:1px solid var(--border);display:flex;flex-direction:column;gap:0;}
+.l1-upload-top{padding:14px 16px;border-bottom:1px solid var(--border);}
+.l1-upload-top h2{font-size:.85rem;font-weight:700;color:var(--text);}
+.l1-upload-top p{font-size:.7rem;color:var(--muted);margin-top:2px;}
+.l1-dropzone{margin:14px 16px;border:2px dashed var(--indigo-m);border-radius:10px;background:var(--indigo-l);padding:18px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;}
+.l1-dropzone .dz-icon{font-size:1.8rem;}
+.l1-dropzone p{font-size:.74rem;font-weight:600;color:var(--indigo2);}
+.l1-dropzone small{font-size:.64rem;color:var(--muted);}
+.l1-receipt-preview{margin:0 16px;background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px;flex:1;display:flex;flex-direction:column;gap:6px;}
+.receipt-line{display:flex;justify-content:space-between;align-items:center;font-size:.72rem;padding:3px 0;border-bottom:1px dashed var(--border);}
+.receipt-line:last-child{border-bottom:none;}
+.receipt-line .rl{color:var(--muted);}.receipt-line .rv{color:var(--text);font-weight:600;}
+.receipt-total{font-size:.82rem;font-weight:800;}
+.l1-footer{padding:10px 16px;border-top:1px solid var(--border);background:var(--white);font-size:.62rem;color:var(--muted);display:flex;align-items:center;gap:5px;}
+/* Right side — validation + form */
+.l1-form-panel{display:flex;flex-direction:column;height:100%;}
+.l1-form-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.l1-form-header h2{font-size:.82rem;font-weight:700;color:var(--text);}
+.ai-badge-sm{font-size:.63rem;padding:2px 8px;background:var(--indigo-l);color:var(--indigo2);border:1px solid var(--indigo-m);border-radius:99px;font-weight:600;}
+.validation-bar{display:flex;gap:6px;padding:8px 16px;background:var(--off2);border-bottom:1px solid var(--border);flex-shrink:0;}
+.v-chip{font-size:.65rem;font-weight:600;padding:3px 8px;border-radius:99px;display:flex;align-items:center;gap:3px;}
+.v-ok  {background:var(--green-l);color:var(--green);border:1px solid #bbf7d0;}
+.v-warn{background:var(--amber-l);color:var(--amber);border:1px solid #fde68a;}
+.v-err {background:var(--red-l);  color:var(--red);  border:1px solid #fecaca;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:12px 16px;}
+.form-field label{display:block;font-size:.62rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;}
+.form-field input{display:block;width:100%;background:var(--white);border:1px solid var(--border2);border-radius:6px;padding:6px 10px;font-size:.75rem;color:var(--text);font-weight:500;}
+.form-field input.f-ok  {border-color:#86efac;background:#f0fdf4;color:var(--green);}
+.form-field input.f-warn{border-color:#fde68a;background:var(--amber-l);color:var(--amber);}
+.form-actions{display:flex;gap:8px;padding:10px 16px;border-top:1px solid var(--border);margin-top:auto;}
+/* Layer 2 */
+.l2-layout{display:grid;grid-template-columns:1fr 320px;height:100%;}
+.l2-main{display:flex;flex-direction:column;border-right:1px solid var(--border);}
+.l2-stats{display:flex;gap:0;border-bottom:1px solid var(--border);flex-shrink:0;}
+.l2-stat{flex:1;padding:10px 14px;border-right:1px solid var(--border);}
+.l2-stat:last-child{border-right:none;}
+.l2-stat .ls-val{font-size:1.3rem;font-weight:900;color:var(--text);}
+.l2-stat .ls-lbl{font-size:.65rem;color:var(--muted);margin-top:1px;}
+.l2-stat.red .ls-val{color:var(--red);}
+.l2-stat.amber .ls-val{color:var(--amber);}
+.l2-stat.green .ls-val{color:var(--green);}
+.l2-table-wrap{flex:1;overflow:hidden;}
+.l2-table{width:100%;border-collapse:collapse;font-size:.72rem;}
+.l2-table th{text-align:left;padding:7px 12px;color:var(--muted);font-weight:600;background:var(--off2);border-bottom:1px solid var(--border);font-size:.65rem;text-transform:uppercase;letter-spacing:.04em;}
+.l2-table td{padding:7px 12px;color:var(--text);border-bottom:1px solid var(--border);}
+.l2-table tr.selected td{background:var(--indigo-l);}
+.l2-detail{background:var(--off);display:flex;flex-direction:column;}
+.l2-detail-header{padding:12px 14px;border-bottom:1px solid var(--border);background:var(--white);}
+.l2-detail-header h3{font-size:.8rem;font-weight:700;color:var(--text);}
+.l2-detail-header small{font-size:.67rem;color:var(--muted);}
+.l2-receipt-img{margin:12px 14px;background:var(--white);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:5px;}
+.l2-policy-box{margin:0 14px;background:var(--red-l);border:1px solid #fecaca;border-radius:8px;padding:10px 12px;}
+.l2-policy-box .pb-title{font-size:.72rem;font-weight:700;color:var(--red);margin-bottom:4px;}
+.l2-policy-box p{font-size:.68rem;color:var(--red);line-height:1.5;}
+.l2-override{margin:10px 14px;background:var(--amber-l);border:1px solid #fde68a;border-radius:8px;padding:10px 12px;}
+.l2-override .ov-title{font-size:.7rem;font-weight:700;color:var(--amber);margin-bottom:6px;}
+.ov-textarea{width:100%;background:var(--white);border:1px solid var(--border2);border-radius:6px;padding:6px 8px;font-size:.67rem;color:var(--muted);resize:none;height:44px;font-family:inherit;}
+/* Layer 3 */
+.l3-layout{display:grid;grid-template-columns:200px 1fr 280px;height:100%;}
+.l3-batch-list{border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--off);}
+.l3-batch-header{padding:10px 12px;border-bottom:1px solid var(--border);font-size:.72rem;font-weight:700;color:var(--muted);background:var(--off2);text-transform:uppercase;letter-spacing:.04em;}
+.l3-batch-item{padding:9px 12px;border-bottom:1px solid var(--border);cursor:default;}
+.l3-batch-item.active{background:var(--indigo-l);}
+.l3-batch-item .bi-id{font-size:.72rem;font-weight:700;color:var(--text);}
+.l3-batch-item .bi-emp{font-size:.65rem;color:var(--muted);}
+.l3-batch-item .bi-pill{float:right;margin-top:1px;}
+.l3-center{display:flex;flex-direction:column;padding:14px 16px;gap:10px;overflow:hidden;}
+.l3-slab-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;gap:12px;align-items:center;}
+.l3-slab-card .sc-label{font-size:.63rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;}
+.l3-slab-card .sc-val{font-size:.88rem;font-weight:700;color:var(--text);}
+.l3-slab-card .sc-conf{background:var(--green-l);border:1px solid #86efac;border-radius:8px;padding:8px 12px;text-align:center;flex-shrink:0;}
+.l3-slab-card .sc-conf .cv{font-size:1.15rem;font-weight:900;color:var(--green);}
+.l3-slab-card .sc-conf .cl{font-size:.63rem;color:var(--muted);}
+.l3-explain{background:var(--indigo-l);border:1px solid var(--indigo-m);border-radius:8px;padding:10px 12px;}
+.l3-explain .ex-title{font-size:.7rem;font-weight:700;color:var(--indigo2);margin-bottom:4px;}
+.l3-explain p{font-size:.7rem;color:var(--muted);line-height:1.5;}
+.l3-bar-row{display:flex;flex-direction:column;gap:5px;}
+.l3-bar-row label{font-size:.65rem;color:var(--muted);display:flex;justify-content:space-between;}
+.l3-bar-bg{background:var(--off2);border-radius:3px;height:6px;overflow:hidden;}
+.l3-bar-fill{height:100%;background:linear-gradient(90deg,var(--green),#34d399);border-radius:3px;animation:growBar .8s .2s cubic-bezier(.4,0,.2,1) both;}
+.l3-actions{display:flex;gap:8px;margin-top:auto;padding-top:8px;border-top:1px solid var(--border);}
+.l3-terminal{border-left:1px solid var(--border);background:#0f172a;display:flex;flex-direction:column;}
+.l3-term-header{padding:8px 12px;background:#1e293b;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:6px;font-size:.67rem;color:#94a3b8;font-weight:600;}
+.l3-term-body{flex:1;padding:10px 12px;font-family:monospace;font-size:.64rem;line-height:1.85;color:#94a3b8;overflow:hidden;}
+.mockup-url{flex:1;background:var(--white);border:1px solid var(--border);border-radius:6px;padding:3px 10px;font-size:.67rem;color:var(--muted);margin:0 8px;}
+.mockup-content{padding:14px 16px;display:flex;flex-direction:column;gap:11px;flex:1;}
+
+/* UI elements */
+.ui-label{font-size:.64rem;font-weight:600;color:var(--muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;}
+.ui-field{background:var(--white);border:1px solid var(--border2);border-radius:8px;padding:7px 11px;font-size:.77rem;color:var(--text);font-weight:500;}
+.ui-field.ok  {border-color:#86efac;color:var(--green);background:#f0fdf4;}
+.ui-field.bad {border-color:#fca5a5;color:var(--red);  background:var(--red-l);}
+.ui-field.warn{border-color:#fde68a;color:var(--amber);background:var(--amber-l);}
+.ui-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.ui-btn{display:inline-flex;align-items:center;gap:5px;font-size:.74rem;font-weight:600;padding:7px 13px;border-radius:8px;cursor:default;}
+.ui-btn-primary{background:var(--indigo2);color:#fff;}
+.ui-btn-outline{background:var(--white);border:1px solid var(--border2);color:var(--muted);}
+.ui-btn-green{background:var(--green-l);border:1px solid #86efac;color:var(--green);}
+.ui-btn-red  {background:var(--red-l);  border:1px solid #fca5a5;color:var(--red);}
+.ui-table{width:100%;border-collapse:collapse;font-size:.75rem;}
+.ui-table th{text-align:left;padding:7px 11px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);background:var(--off2);font-size:.67rem;text-transform:uppercase;letter-spacing:.04em;}
+.ui-table td{padding:7px 11px;color:var(--text);border-bottom:1px solid var(--border);}
+.ui-table tr:last-child td{border-bottom:none;}
+.pill{display:inline-block;padding:2px 8px;border-radius:99px;font-size:.66rem;font-weight:700;}
+.pill-h{background:var(--red-l);  color:var(--red);}
+.pill-m{background:var(--amber-l);color:var(--amber);}
+.pill-l{background:var(--green-l);color:var(--green);}
+
+.terminal{background:#0f172a;border-radius:10px;padding:13px 15px;font-family:'Menlo','Courier New',monospace;font-size:.69rem;line-height:1.9;color:#94a3b8;overflow:hidden;}
+.t-ts{color:#334155;}.t-key{color:#a78bfa;font-weight:700;}.t-val{color:#e2e8f0;}.t-ok{color:#86efac;font-weight:700;}
+
+.drop-zone{border:2px dashed var(--indigo-m);border-radius:12px;background:var(--indigo-l);padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;text-align:center;}
+.drop-zone .icon{font-size:1.7rem;}
+.drop-zone p{font-size:.77rem;color:var(--indigo2);font-weight:600;}
+.drop-zone small{font-size:.67rem;color:var(--muted);}
+.scan-bar-wrap{width:100%;height:4px;background:var(--indigo-m);border-radius:2px;overflow:hidden;}
+.scan-bar{height:100%;width:40%;background:var(--indigo2);border-radius:2px;animation:scan 1.4s ease-in-out infinite;}
+@keyframes scan{0%{transform:translateX(-100%)}100%{transform:translateX(350%)}}
+
+.gdpr-footer{font-size:.64rem;color:var(--muted);padding:7px 10px;border-top:1px solid var(--border);background:var(--off2);display:flex;align-items:center;gap:6px;}
+
+/* ── AUDIO CONTROLS ── */
+#audio-btn{width:42px;height:42px;border-radius:99px;background:rgba(255,255,255,.92);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.15rem;box-shadow:0 2px 8px rgba(0,0,0,.1);transition:background .15s,box-shadow .15s,transform .1s;user-select:none;backdrop-filter:blur(6px);}
+#audio-btn:hover{background:#fff;box-shadow:0 4px 16px rgba(99,102,241,.2);transform:scale(1.05);}
+#audio-btn.playing{border-color:var(--green);background:rgba(22,163,74,.08);}
+.wave-icon{font-size:1.1rem;}
+#audio-btn.playing .wave-icon{display:none;}
+.wave-bars{display:none;align-items:flex-end;gap:2px;height:15px;}
+#audio-btn.playing .wave-bars{display:flex;}
+.wave-bar{width:3px;border-radius:2px;background:var(--green);animation:wavebar .75s ease-in-out infinite;}
+.wave-bar:nth-child(1){height:5px; animation-delay:0s;}
+.wave-bar:nth-child(2){height:13px;animation-delay:.13s;}
+.wave-bar:nth-child(3){height:7px; animation-delay:.26s;}
+.wave-bar:nth-child(4){height:11px;animation-delay:.08s;}
+.wave-bar:nth-child(5){height:4px; animation-delay:.2s;}
+@keyframes wavebar{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.25)}}
+
+/* Pulse */
+.pulse-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;}
+.pulse-core{width:8px;height:8px;background:var(--green);border-radius:50%;position:relative;z-index:1;}
+.pulse-ring{position:absolute;inset:-3px;border:2px solid var(--green);border-radius:50%;opacity:.5;animation:pulsering 1.5s ease-out infinite;}
+@keyframes pulsering{0%{transform:scale(1);opacity:.5}100%{transform:scale(2);opacity:0}}
+
+/* Confidence bar */
+.conf-bar-wrap{display:flex;align-items:center;gap:10px;}
+.conf-track{flex:1;height:8px;background:var(--off2);border-radius:4px;border:1px solid var(--border);overflow:hidden;}
+.conf-fill{height:100%;background:linear-gradient(90deg,var(--green),#34d399);border-radius:4px;animation:growBar .8s .2s cubic-bezier(.4,0,.2,1) both;}
+@keyframes growBar{from{width:0}}
+.conf-pct{font-size:.82rem;font-weight:700;color:var(--green);min-width:34px;text-align:right;}
+
+/* Summary */
+.summary-stats{display:flex;gap:14px;}
+.stat-card{flex:1;background:var(--white);border:1px solid var(--border);border-radius:16px;padding:22px 18px;text-align:center;box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;gap:5px;transition:box-shadow .2s,transform .2s;}
+.stat-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-3px);}
+.stat-card .big{font-size:2.7rem;font-weight:900;color:var(--indigo2);line-height:1;}
+.stat-card .lbl{font-size:.83rem;font-weight:700;color:var(--text);}
+.stat-card small{font-size:.72rem;color:var(--muted);}
+
+/* Tag */
+.tag{display:inline-block;font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:99px;border:1px solid transparent;}
+.tag-indigo{background:var(--indigo-l);border-color:var(--indigo-m);color:var(--indigo2);}
+.tag-green{background:var(--green-l);border-color:#bbf7d0;color:var(--green);}
+.tag-red{background:var(--red-l);border-color:#fecaca;color:var(--red);}
+.tag-amber{background:var(--amber-l);border-color:#fde68a;color:var(--amber);}
+/* ── Demo interactions ──────────────────────────────────── */
+.demo-toast{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:6px 18px;border-radius:20px;font-size:.69rem;font-weight:600;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .25s;z-index:200;box-shadow:0 4px 14px rgba(0,0,0,.22);}
+.demo-toast.show{opacity:1;}
+.submit-success{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:14px;text-align:center;width:100%;animation:revUp .35s ease;}
+.ss-icon{font-size:2rem;}
+.ss-ref{font-size:.88rem;font-weight:700;color:var(--green);}
+.ss-sub{font-size:.69rem;color:var(--muted);}
+.ss-steps{display:flex;flex-direction:column;gap:4px;width:100%;max-width:240px;margin-top:4px;}
+.ss-step{font-size:.67rem;color:var(--muted);display:flex;align-items:center;gap:6px;}
+tbody tr.l2-row{cursor:pointer;transition:background .15s;}
+tbody tr.l2-row:hover td{background:var(--off-white);}
+tbody tr.l2-row.selected td{background:var(--indigo-l);}
+tbody tr.l2-row.row-approved td{background:#f0fdf4;}
+tbody tr.l2-row.row-rejected td{background:#fff7f7;}
+tbody tr.l2-row.row-approved .pill{background:var(--green-l)!important;color:var(--green)!important;border-color:#86efac!important;}
+tbody tr.l2-row.row-rejected .pill{background:var(--red-l)!important;color:var(--red)!important;border-color:#fca5a5!important;}
+.btn-sealed{background:#16a34a!important;color:#fff!important;border-color:#16a34a!important;cursor:default!important;}
+.override-panel{background:var(--off-white);border:1px solid var(--border);border-radius:10px;padding:11px;display:flex;flex-direction:column;gap:7px;margin-bottom:8px;animation:revUp .25s ease;}
+.override-panel h4{font-size:.76rem;font-weight:700;color:var(--text);margin:0;}
+.override-select,.override-reason{width:100%;padding:5px 9px;border:1px solid var(--border);border-radius:6px;font-size:.72rem;font-family:inherit;background:var(--white);color:var(--text);outline:none;box-sizing:border-box;}
+.override-reason{resize:none;height:44px;}
+.l3-batch-item{cursor:pointer;}
+.l3-batch-item:hover:not(.active){background:rgba(99,102,241,.05);}
+.ui-btn:not([disabled]):hover{filter:brightness(.9);}
+.nav-tab{cursor:pointer;}
+.nav-tab:hover:not(.active){color:var(--text);background:var(--off-white);}
+@keyframes tabFadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+.app-body>*{animation:tabFadeIn .18s ease;}
+/* Tab panel helpers */
+.tab-page{flex:1;overflow-y:auto;padding:14px 18px;display:flex;flex-direction:column;gap:12px;font-size:.75rem;}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.kpi-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:3px;}
+.kpi-val{font-size:1.45rem;font-weight:800;color:var(--text);}
+.kpi-lbl{font-size:.73rem;color:var(--muted);}
+.kpi-delta{font-size:.7rem;font-weight:600;}
+.insight-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.insight-card{background:var(--off-white);border:1px solid var(--border);border-radius:10px;padding:10px 12px;}
+.insight-title{font-size:.78rem;font-weight:700;color:var(--text);margin-bottom:4px;}
+.insight-text{font-size:.73rem;color:var(--muted);line-height:1.5;}
+.mini-bar-row{display:flex;align-items:center;gap:7px;margin-bottom:4px;}
+.mini-bar-label{font-size:.7rem;color:var(--muted);width:90px;flex-shrink:0;}
+.mini-bar-bg{flex:1;height:7px;background:var(--border);border-radius:4px;overflow:hidden;}
+.mini-bar-fill{height:100%;border-radius:4px;}
+.report-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.report-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;}
+.report-icon{font-size:1.2rem;}
+.report-title{font-size:.78rem;font-weight:700;color:var(--text);}
+.report-desc{font-size:.72rem;color:var(--muted);flex:1;}
+.full-term{flex:1;background:#0f172a;border-radius:8px;padding:10px 12px;overflow-y:auto;font-family:monospace;font-size:.69rem;line-height:1.7;}
+.export-wizard{display:flex;flex-direction:column;gap:10px;max-width:480px;margin:0 auto;width:100%;}
+.export-section{background:var(--off-white);border:1px solid var(--border);border-radius:10px;padding:10px 14px;}
+.export-section h4{font-size:.74rem;font-weight:700;margin-bottom:6px;color:var(--text);}
+.format-btns{display:flex;gap:7px;flex-wrap:wrap;}
+.export-section h4{font-size:.78rem;font-weight:700;color:var(--text);margin-bottom:6px;}
+.format-btn{padding:5px 14px;border-radius:20px;font-size:.74rem;font-weight:600;border:1.5px solid var(--border);background:var(--white);color:var(--muted);cursor:pointer;transition:all .15s;}
+.format-btn.sel{border-color:var(--indigo2);background:var(--indigo-l);color:var(--indigo2);}
+.bq-table-wrap{flex:1;overflow-y:auto;}
+</style>
+</head>
+<body>
+<div id="scale-wrap">
+<div id="deck">
+
+<!-- ══ S1 TITLE ════════════════════════════════════════════ -->
+<div class="slide title-slide active">
+  <div class="accent-bar"></div>
+  <div class="slide-header">
+    <div class="logo-mark">C</div><span class="logo-text">ComplianceGuard</span>
+    <span class="badge-ai">✦ Compliance AI v1.2</span>
+    <span class="slide-num">1 / 11</span>
+  </div>
+  <div class="slide-body">
+    <div class="title-grid reveal">
+      <div>
+        <div class="eyebrow ey-solution">✦ Azets × Kong Hackathon 2026</div>
+        <div style="height:14px"></div>
+        <div class="title-headline">AI-Powered<br><span class="grad">Payroll Verifier</span><br>for the Compliant Era</div>
+        <div class="title-tagline">A 3-layer, privacy-first AI orchestration system that automates BPO payroll auditing while satisfying the EU AI Act and GDPR — by design, not by accident.</div>
+        <div class="title-chips">
+          <span class="chip indigo">EU AI Act</span><span class="chip indigo">GDPR</span>
+          <span class="chip indigo">Kong AI Gateway</span><span class="chip">LangGraph Agents</span>
+          <span class="chip">FastAPI</span><span class="chip">GPT-4o</span><span class="chip">EasyOCR</span>
+        </div>
+      </div>
+      <div class="title-right">
+        <div style="font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px">The Team</div>
+        <div class="team-row">
+          <div class="team-member">
+            <img src="../images/Morteza Rastgoo.png" class="team-avatar" alt="Morteza Rastgoo">
+            <div class="team-name">Morteza Rastgoo</div>
+            <div class="team-role">Full-Stack &amp; AI</div>
+          </div>
+          <div class="team-member">
+            <img src="../images/Kaif_Ahmad.webp" class="team-avatar" alt="Kaif Ahmad">
+            <div class="team-name">Kaif Ahmad</div>
+            <div class="team-role">Backend &amp; Kong</div>
+          </div>
+          <div class="team-member">
+            <img src="../images/Md_Sakibul_Islam.webp" class="team-avatar" alt="Md Sakibul Islam">
+            <div class="team-name">Md Sakibul Islam</div>
+            <div class="team-role">Frontend &amp; UX</div>
+          </div>
+        </div>
+        <div class="team-names-row">
+          <span class="team-name-pill">Mateusz Herczka</span>
+          <span class="team-name-pill">Supun Chathuranga</span>
+          <span class="team-name-pill">hossam.elshahaby</span>
+        </div>
+        <div class="team-stats">
+          <div class="stat-mini"><div class="big">3</div><div class="lbl">AI Layers<br><span style="font-size:.6rem;color:var(--muted2)">Guide·Auditor·Tax</span></div></div>
+          <div class="stat-mini"><div class="big" style="color:var(--green)">0</div><div class="lbl">PII to LLM<br><span style="font-size:.6rem;color:var(--muted2)">Kong shields all</span></div></div>
+          <div class="stat-mini"><div class="big" style="color:var(--red)">4</div><div class="lbl">Articles met<br><span style="font-size:.6rem;color:var(--muted2)">12·14·50·86</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="progress-track"><div id="progress-fill" style="width:9.1%"></div></div>
+</div>
+
+<!-- ══ S2 PROBLEM ══════════════════════════════════════════ -->
+<div class="slide">
+  <div class="accent-bar"></div>
+  <div class="slide-header">
+    <div class="logo-mark">C</div><span class="logo-text">ComplianceGuard</span>
+    <span class="badge-ai">✦ Compliance AI v1.2</span><span class="slide-num">2 / 11</span>
+  </div>
+  <div class="slide-body reveal">
+    <div class="eyebrow ey-problem">⚠ The Problem</div>
+    <div class="slide-title">BPO Payroll is a <span class="accent">Compliance Minefield</span></div>
+    <div class="slide-sub">Business Process Outsourcing firms process <strong>millions of sensitive financial documents</strong> yearly — without standardised AI governance.</div>
+    <div class="three-col">
+      <div class="card red"><div class="card-icon">📄</div><h3>Massive Document Volume</h3><p>Expense receipts, payroll slips, tax forms — at industrial scale, far beyond what human reviewers can handle accurately or consistently.</p></div>
+      <div class="card red"><div class="card-icon">⚖️</div><h3>EU AI Act — High Risk</h3><p>Since August 2024, payroll and tax AI is legally <strong style="color:var(--red)">High-Risk</strong>. Every AI decision must be traceable, explainable, and auditable by law.</p></div>
+      <div class="card red"><div class="card-icon">🔓</div><h3>Uncontrolled PII Exposure</h3><p>Typical AI pipelines send IBANs, names, and home addresses to cloud LLMs in plaintext — a GDPR violation at the architectural level.</p></div>
+    </div>
+  </div>
+  <div id="progress-track"><div id="progress-fill" style="width:18.2%"></div></div>
+</div>
+
+<!-- ══ S3 DIFFICULTIES ════════════════════════════════════ -->
+<div class="slide">
+  <div class="accent-bar"></div>
+  <div class="slide-header">
+    <div class="logo-mark">C</div><span class="logo-text">ComplianceGuard</span>
+    <span class="badge-ai">✦ Compliance AI v1.2</span><span class="slide-num">3 / 11</span>
+  </div>
+  <div class="slide-body reveal">
+    <div class="eyebrow ey-problem">⚠ Difficulties</div>
+    <div class="slide-title">Why Existing Solutions <span class="accent">Fall Short</span></div>
+    <div class="two-col">
+      <ul class="check" style="align-self:start">
+        <li class="bad"><span class="icon">✗</span>No audit trail — AI decisions are black boxes. Article 12 requires full traceability for every output.</li>
+        <li class="bad"><span class="icon">✗</span>PII sent to cloud LLMs in plaintext — violates GDPR Data Minimisation at the pipeline level.</li>
+        <li class="bad"><span class="icon">✗</span>No human override mechanism — mandatory for high-risk AI under Article 14.</li>
+        <li class="bad"><span class="icon">✗</span>Zero plain-language explanations — employees cannot understand or appeal decisions (Article 86).</li>
+        <li class="warn"><span class="icon">⚠</span>OCR, policy checks, and tax slabs live in separate disconnected systems — no unified compliance layer.</li>
+        <li class="warn"><span class="icon">⚠</span>Manual escalation is slow, inconsistent, and leaves no verifiable paper trail.</li>
+      </ul>
+      <div class="card" style="justify-content:center;gap:16px;align-self:start">
+        <div style="text-align:center;font-size:2.6rem">🏛️</div>
+        <div style="text-align:center">
+          <div style="font-size:.93rem;font-weight:700;color:var(--text);margin-bottom:7px">Regulatory Gap Today</div>
+          <div style="font-size:.82rem;color:var(--muted);line-height:1.65">Most BPO firms have <span style="color:var(--red);font-weight:700">zero</span> EU AI Act–compliant payroll pipeline in production. Penalties reach <span style="color:var(--red);font-weight:700">€30 million</span> or <span style="color:var(--red);font-weight:700">6% of global turnover</span>.</div>
+        </div>
+        <div style="display:flex;justify-content:center;gap:7px;flex-wrap:wrap">
+          <span class="tag tag-red">Art. 12 – Traceability</span>
+          <span class="tag tag-red">Art. 14 – HITL</span>
+          <span class="tag tag-red">Art. 86 – Explainability</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="progress-track"><div id="progress-fill" style="width:27.3%"></div></div>
+</div>
+
+<!-- ══ S4 CONSEQUENCES ════════════════════════════════════ -->
+<div class="slide">
+  <div class="accent-bar"></div>
+  <div class="slide-header">
+    <div class="logo-mark">C</div><span class="logo-text">ComplianceGuard</span>
+    <span class="badge-ai">✦ Compliance AI v1.2</span><span class="slide-num">4 / 11</span>
+  </div>
+  <div class="slide-body reveal">
+    <div class="eyebrow ey-problem">⚠ Consequences</div>
+    <div class="slide-title">The Cost of <span class="accent">Getting This Wrong</span></div>
+    <div class="three-col">
+      <div class="card red"><div class="card-icon">💰</div><h3>Regulatory Fines</h3><p>EU AI Act violations carry penalties up to <strong style="color:var(--red)">€30M or 6% of global turnover</strong>. GDPR adds up to €20M independently.</p></div>
+      <div class="card red"><div class="card-icon">📰</div><h3>Reputational Damage</h3><p>A single publicised breach terminates BPO contracts immediately. Client trust collapses within days — and rarely recovers fully.</p></div>
+      <div class="card red"><div class="card-icon">🚫</div><h3>Operational Shutdown</h3><p>Regulators can <strong style="color:var(--red)">suspend non-compliant AI systems</strong> entirely — grinding entire BPO workflows to a halt.</p></div>
+    </div>
+    <div class="card sky" style="flex-direction:row;align-items:center;gap:18px">
+      <div style="font-size:1.9rem;flex-shrink:0">⚡</div>
+      <div style="font-size:.87rem;color:var(--muted);line-height:1.65"><strong style="color:var(--text)">The market window is now.</strong> BPO firms that adopt compliant AI tooling in 2025–2026 will own the market. Those that wait will face enforcement actions starting 2027 — with no grace period.</div>
+    </div>
+  </div>
+  <div id="progress-track"><div id="progress-fill" style="width:36.4%"></div></div>
+</div>
+
+<!-- ══ S5 SOLUTION ════════════════════════════════════════ -->
+<div class="slide">
+  <div class="accent-bar"></div>
+  <div class="slide-header">
+    <div class="logo-mark">C</div><span class="logo-text">ComplianceGuard</span>
+    <span class="badge-ai">✦ Compliance AI v1.2</span><span class="slide-num">5 / 11</span>
+  </div>
+  <div class="slide-body reveal">
+    <div class="eyebrow ey-solution">✦ Our Solution</div>
+    <div class="slide-title">ComplianceGuard: <span class="accent">Compliance by Design</span></div>
+    <div class="slide-sub">A 3-layer AI orchestration system where <strong>each layer has a defined legal role</strong>, all connected by Kong AI Gateway for privacy-safe processing.</div>
+    <div class="layer-rows">
+      <div class="layer-row">
+        <div class="lr-num l1">1</div>
+        <div class="lr-name">🟢 The Guide<small>Employee Portal</small></div>
+        <div class="lr-desc">Receipt submission, OCR scanning, AI pre-fill & quality validation. Only clean, complete data enters the system.</div>
+        <div class="lr-badge"><span>GDPR Art. 5 · Data Minimisation</span></div>
+      </div>
+      <div class="layer-row">
+        <div class="lr-num l2">2</div>
+        <div class="lr-name">🟡 The Auditor<small>Manager Dashboard</small></div>
+        <div class="lr-desc">Internal policy enforcement — meal limits, alcohol bans, weekend submissions — with mandatory human override justification.</div>
+        <div class="lr-badge"><span>EU AI Act Art. 14 · HITL</span></div>
+      </div>
+      <div class="layer-row">
+        <div class="lr-num l3">3</div>
+        <div class="lr-name">🔴 The Tax Expert<small>Compliance Hub</small></div>
+        <div class="lr-desc">Final tax slab assignment, audit log generation, digital compliance seal — regulator-ready and exportable on demand.</div>
+        <div class="lr-badge"><span>EU AI Act Art. 86 · Explainability</span></div>
+      </div>
+    </div>
+    <div class="kong-bar">
+      <div style="font-size:1.35rem">🔷</div>
+      <h3>Kong AI Gateway</h3>
+      <span class="kong-chip">ai-pii-sanitizer</span>
+      <span class="kong-chip">ai-semantic-guardrail</span>
+      <span class="kong-chip">Immutable Audit Logs</span>
+      <span class="kong-note">Zero PII ever reaches the LLM</span>
+    </div>
+  </div>
+  <div id="progress-track"><div id="progress-fill" style="width:45.5%"></div></div>
+</div>
+
+<!-- ══ S6 ARCHITECTURE ════════════════════════════════════ -->
+<div class="slide">
+  <div class="accent-bar"></div>
+  <div class="slide-header">
+    <div class="logo-mark">C</div><span class="logo-text">ComplianceGuard</span>
+    <span class="badge-ai">✦ Compliance AI v1.2</span><span class="slide-num">6 / 11</span>
+  </div>
+  <div class="slide-body reveal">
+    <div class="eyebrow ey-arch">⚙ Architecture</div>
+    <div class="slide-title">How It Works <span class="accent">End-to-End</span></div>
+    <div class="flow" style="margin:4px 0 2px">
+      <div class="flow-node">📎 Receipt<br>Upload</div><div class="flow-arr">→</div>
+      <div class="flow-node">🔍 EasyOCR<br>Extraction</div><div class="flow-arr">→</div>
+      <div class="flow-node indigo">🔷 Kong<br>PII Sanitiser</div><div class="flow-arr">→</div>
+      <div class="flow-node">🤖 LangGraph<br>Agent Chain</div><div class="flow-arr">→</div>
+      <div class="flow-node">👤 Human<br>Review (HITL)</div><div class="flow-arr">→</div>
+      <div class="flow-node green">✅ Compliance<br>Seal + Log</div>
+    </div>
+    <div class="two-col">
+      <div class="card indigo">
+        <h3>🔷 Kong AI Gateway Layer</h3>
+        <ul class="check" style="margin-top:4px">
+          <li class="ok"><span class="icon">✓</span>PII Sanitisation — IBANs, names, addresses replaced with placeholders before every AI call</li>
+          <li class="ok"><span class="icon">✓</span>Semantic Guardrails — blocks prompt injection and off-scope queries at the gateway</li>
+          <li class="ok"><span class="icon">✓</span>100% request logging — immutable, regulator-ready audit trail from day one</li>
+        </ul>
+      </div>
+      <div class="card green">
+        <h3>⚙️ Tech Stack</h3>
+        <div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:8px">
+          <span class="tag tag-indigo">FastAPI · Python 3.11</span>
+          <span class="tag tag-indigo">LangGraph Agents</span>
+          <span class="tag tag-indigo">GPT-4o via Kong</span>
+          <span class="tag tag-indigo">EasyOCR / Tesseract</span>
+          <span class="tag tag-indigo">React + Tailwind</span>
+          <span class="tag tag-indigo">Rust / Axum</span>
+        </div>
+        <div style="margin-top:10px;font-size:.77rem;color:var(--muted)">Art. 12 · Art. 14 · Art. 50 · Art. 86 enforced at every layer</div>
+      </div>
+    </div>
+  </div>
+  <div id="progress-track"><div id="progress-fill" style="width:54.5%"></div></div>
+</div>
+
+<!-- ══ S7 BENEFITS ════════════════════════════════════════ -->
+<div class="slide">
+  <div class="accent-bar"></div>
+  <div class="slide-header">
+    <div class="logo-mark">C</div><span class="logo-text">ComplianceGuard</span>
+    <span class="badge-ai">✦ Compliance AI v1.2</span><span class="slide-num">7 / 11</span>
+  </div>
+  <div class="slide-body reveal">
+    <div class="eyebrow ey-benefit">✦ Key Benefits</div>
+    <div class="slide-title">Why <span class="accent">ComplianceGuard</span> Wins</div>
+    <div class="three-col">
+      <div class="card green"><div class="card-icon">🔒</div><h3>Privacy-First Architecture</h3><p>Zero PII reaches the LLM — ever. Kong's PII sanitiser replaces every identifier with an anonymous placeholder before each AI call.</p></div>
+      <div class="card green"><div class="card-icon">📋</div><h3>100% Audit Trail</h3><p>Every redaction, policy check, and tax decision is logged in an immutable chain — ready for regulatory inspection at any moment.</p></div>
+      <div class="card green"><div class="card-icon">👤</div><h3>Human-in-the-Loop</h3><p>High-risk decisions require explicit human sign-off with a written reason — satisfying Article 14 at the technical level, not just policy.</p></div>
+    </div>
+    <div class="two-col">
+      <div class="card indigo"><div class="card-icon">💡</div><h3>Explainable AI (Art. 86)</h3><p>Plain-language explanations for every flagged expense and tax assignment. Employees always understand <em>why</em> a decision was made and can appeal.</p></div>
+      <div class="card indigo"><div class="card-icon">⚡</div><h3>10× Faster Processing</h3><p>Receipt-to-audit-log in seconds — replacing days of manual review while maintaining complete legal defensibility for every single decision.</p></div>
+    </div>
+  </div>
+  <div id="progress-track"><div id="progress-fill" style="width:63.6%"></div></div>
+</div>
+
+<!-- ══ S8 DEMO LAYER 1 ════════════════════════════════════ -->
+<div class="slide">
+  <div class="accent-bar"></div>
+  <div class="slide-header">
+    <div class="logo-mark">C</div><span class="logo-text">ComplianceGuard</span>
+    <span class="badge-ai">✦ Compliance AI v1.2</span><span class="slide-num">8 / 11</span>
+  </div>
+  <div class="slide-body" style="padding:12px 16px 12px;gap:10px;">
+    <div class="demo-label-bar">
+      <div class="eyebrow ey-demo">▶ Demo — Layer 1</div>
+      <span style="font-size:.82rem;font-weight:700;color:var(--text);margin-left:10px;">Employee Submission Portal</span>
+      <span style="font-size:.73rem;color:var(--muted);margin-left:8px;">— Guide Agent: OCR scan → AI pre-fill → GDPR validation</span>
+      <span class="badge-ai" style="margin-left:auto;">Art. 50 · Data Minimisation</span>
+    </div>
+    <div class="demo-mat reveal">
+      <div class="demo-mat-strip">
+        <div class="demo-mat-label">complianceguard · live demo</div>
+        <div class="demo-mat-dots"><div class="demo-mat-dot"></div><div class="demo-mat-dot"></div><div class="demo-mat-dot"></div></div>
+      </div>
+      <div class="demo-browser">
+        <div class="demo-chrome">
+          <div class="demo-chrome-dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+          <div class="demo-chrome-nav"><span>‹</span><span>›</span></div>
+          <div class="demo-url-wrap">
+            <span style="font-size:.68rem;">&#128274;</span>
+            <div class="demo-url">complianceguard.app/employee/submit</div>
+          </div>
+          <span style="font-size:.63rem;color:rgba(255,255,255,.35);padding-right:4px;">&#9881;</span>
+        </div>
+      <div class="app-page">
+        <div class="app-nav">
+          <div class="app-nav-logo"><div class="nm">C</div>ComplianceGuard</div>
+          <div class="nav-tabs" id="s8-nav" data-app="s8">
+            <div class="nav-tab active" onclick="switchTab('s8',0,this)">Submit Receipt</div>
+            <div class="nav-tab" onclick="switchTab('s8',1,this)">My Submissions</div>
+            <div class="nav-tab" onclick="switchTab('s8',2,this)">History</div>
+          </div>
+          <div class="nav-right">
+            <span class="ai-badge-sm">✦ Compliance AI v1.2</span>
+            <div class="nav-avatar">JD</div>
+          </div>
+        </div>
+        <div class="app-body" id="s8-body">
+            <div class="l1-upload">
+              <div class="l1-upload-top">
+                <h2>📎 Upload Receipt</h2>
+                <p>Supported: PNG · JPG · PDF · Max 10 MB</p>
+              </div>
+              <div class="l1-dropzone" id="s8-dropzone">
+                <div class="dz-icon">🧾</div>
+                <p>Receipt uploaded — scanning in progress</p>
+                <div style="width:100%;height:4px;background:var(--indigo-m);border-radius:2px;overflow:hidden;"><div class="scan-bar"></div></div>
+                <small>EasyOCR extracting text → Kong AI Gateway sanitising PII…</small>
+              </div>
+              <div class="l1-receipt-preview">
+                <div style="font-size:.68rem;font-weight:700;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em;">Receipt Preview (Redacted)</div>
+                <div class="receipt-line"><span class="rl">Vendor</span><span class="rv">[VENDOR_REDACTED]</span></div>
+                <div class="receipt-line"><span class="rl">Date</span><span class="rv">22 April 2026</span></div>
+                <div class="receipt-line"><span class="rl">Items</span><span class="rv">Business Lunch × 2</span></div>
+                <div class="receipt-line"><span class="rl">VAT (20%)</span><span class="rv">£ 8.08</span></div>
+                <div class="receipt-line receipt-total"><span class="rl">Total</span><span class="rv" style="color:var(--indigo2);">£ 48.50</span></div>
+              </div>
+              <div class="l1-footer">🔒 PII sanitised by Kong Gateway — identifiers replaced with placeholders</div>
+            </div>
+            <div class="l1-form-panel">
+              <div class="l1-form-header">
+                <h2>🤖 AI Validation Results</h2>
+                <span class="ai-badge-sm">Guide Agent</span>
+              </div>
+              <div class="validation-bar">
+                <span class="v-ok">✓ Date</span>
+                <span class="v-ok">✓ Amount</span>
+                <span class="v-warn">⚠ Vendor Name</span>
+                <span class="v-ok">✓ Category</span>
+                <span class="v-ok">✓ VAT Receipt</span>
+              </div>
+              <div class="form-grid">
+                <div class="form-field"><label>Vendor Name</label><input class="f-warn" value="⚠ Could not detect — please enter" readonly></div>
+                <div class="form-field"><label>Date</label><input class="f-ok" value="2026-04-22" readonly></div>
+                <div class="form-field"><label>Amount (£)</label><input class="f-ok" value="48.50" readonly></div>
+                <div class="form-field"><label>Category</label><input class="f-ok" value="Meal / Business Entertainment" readonly></div>
+                <div class="form-field"><label>VAT Number</label><input class="f-ok" value="GB [VAT_REDACTED]" readonly></div>
+                <div class="form-field"><label>Employee ID</label><input class="f-ok" value="[USER_01]" readonly></div>
+              </div>
+              <div class="form-actions" id="s8-actions">
+                <button class="ui-btn ui-btn-outline" onclick="s8Draft(event)">Save Draft</button>
+                <div style="margin-left:auto;display:flex;gap:8px;">
+                  <button class="ui-btn" style="background:var(--amber-l);border:1px solid #fde68a;color:var(--amber);" onclick="s8Rescan(event)">Fix &amp; Re-scan</button>
+                  <button class="ui-btn ui-btn-primary" onclick="s8Submit(event)">Submit for Review →</button>
+                </div>
+              </div>
+              <div class="gdpr-footer">🔒 Your data is sanitised via Kong Gateway. No personal identifiers are stored in the AI model. — Processed by Compliance AI v1.2</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="demo-toast" id="s8-toast"></div>
+    </div>
+    </div><!-- /demo-mat -->
+  </div>
+  <div id="progress-track"><div id="progress-fill" style="width:72.7%"></div></div>
+</div>
+
+<!-- ══ S9 DEMO LAYER 2 ════════════════════════════════════ -->
+<div class="slide">
+  <div class="accent-bar"></div>
+  <div class="slide-header">
+    <div class="logo-mark">C</div><span class="logo-text">ComplianceGuard</span>
+    <span class="badge-ai">✦ Compliance AI v1.2</span><span class="slide-num">9 / 11</span>
+  </div>
+  <div class="slide-body" style="padding:12px 16px 12px;gap:10px;">
+    <div class="demo-label-bar">
+      <div class="eyebrow ey-demo">▶ Demo — Layer 2</div>
+      <span style="font-size:.82rem;font-weight:700;color:var(--text);margin-left:10px;">Internal Auditor Dashboard</span>
+      <span style="font-size:.73rem;color:var(--muted);margin-left:8px;">— Auditor Agent: policy flagging → risk scoring → HITL override</span>
+      <span class="badge-ai" style="margin-left:auto;">Art. 14 · Human-in-the-Loop</span>
+    </div>
+    <div class="demo-mat reveal">
+      <div class="demo-mat-strip">
+        <div class="demo-mat-label">complianceguard · live demo</div>
+        <div class="demo-mat-dots"><div class="demo-mat-dot"></div><div class="demo-mat-dot"></div><div class="demo-mat-dot"></div></div>
+      </div>
+      <div class="demo-browser">
+        <div class="demo-chrome">
+          <div class="demo-chrome-dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+          <div class="demo-chrome-nav"><span>‹</span><span>›</span></div>
+          <div class="demo-url-wrap">
+            <span style="font-size:.68rem;">&#128274;</span>
+            <div class="demo-url">complianceguard.app/auditor/violations</div>
+          </div>
+          <span style="font-size:.63rem;color:rgba(255,255,255,.35);padding-right:4px;">&#9881;</span>
+        </div>
+      <div class="app-page">
+        <div class="app-nav">
+          <div class="app-nav-logo"><div class="nm">C</div>ComplianceGuard</div>
+          <div class="nav-tabs" id="s9-nav" data-app="s9">
+            <div class="nav-tab" onclick="switchTab('s9',0,this)">Overview</div>
+            <div class="nav-tab active" onclick="switchTab('s9',1,this)">Violations</div>
+            <div class="nav-tab" onclick="switchTab('s9',2,this)">Approved</div>
+            <div class="nav-tab" onclick="switchTab('s9',3,this)">Reports</div>
+          </div>
+          <div class="nav-right">
+            <span class="ai-badge-sm">✦ Compliance AI v1.2</span>
+            <div class="nav-avatar">FA</div>
+          </div>
+        </div>
+        <div class="app-body" id="s9-body">
+            <div class="l2-main">
+              <div class="l2-stats">
+                <div class="l2-stat"><div class="ls-val">47</div><div class="ls-lbl">Total Submitted</div></div>
+                <div class="l2-stat red"><div class="ls-val">8</div><div class="ls-lbl">Flagged</div></div>
+                <div class="l2-stat amber"><div class="ls-val">3</div><div class="ls-lbl">Pending Review</div></div>
+                <div class="l2-stat green"><div class="ls-val">36</div><div class="ls-lbl">Approved</div></div>
+              </div>
+              <div class="l2-table-wrap">
+                <table class="l2-table" id="s9-table">
+                  <thead><tr><th>Ref #</th><th>Employee ID</th><th>Vendor</th><th>Amount</th><th>Policy Violation</th><th>Risk</th><th>Action</th></tr></thead>
+                  <tbody>
+                    <tr class="selected l2-row" onclick="s9SelectRow(event,0)">
+                      <td style="color:var(--muted);">#0042</td><td>[USER_01]</td><td>[VENDOR_A]</td><td>£ 84.00</td>
+                      <td style="color:var(--red);font-weight:600;">Exceeds £50 Meal Limit</td>
+                      <td><span class="pill pill-h">High</span></td>
+                      <td><button class="ui-btn" style="background:var(--indigo-l);border:1px solid var(--indigo-m);color:var(--indigo2);padding:3px 8px;font-size:.65rem;" onclick="s9SelectRow(event,0)">▶ Reviewing</button></td>
+                    </tr>
+                    <tr class="l2-row" onclick="s9SelectRow(event,1)">
+                      <td style="color:var(--muted);">#0039</td><td>[USER_03]</td><td>[VENDOR_B]</td><td>£ 23.50</td>
+                      <td style="color:var(--amber);font-weight:600;">Weekend Submission</td>
+                      <td><span class="pill pill-m">Medium</span></td>
+                      <td><button class="ui-btn ui-btn-outline" style="padding:3px 8px;font-size:.65rem;" onclick="s9SelectRow(event,1)">Review</button></td>
+                    </tr>
+                    <tr class="l2-row" onclick="s9SelectRow(event,2)">
+                      <td style="color:var(--muted);">#0038</td><td>[USER_05]</td><td>[VENDOR_C]</td><td>£ 42.00</td>
+                      <td style="color:var(--red);font-weight:600;">Alcohol — Policy Ban</td>
+                      <td><span class="pill pill-h">High</span></td>
+                      <td><button class="ui-btn ui-btn-outline" style="padding:3px 8px;font-size:.65rem;" onclick="s9SelectRow(event,2)">Review</button></td>
+                    </tr>
+                    <tr class="l2-row" onclick="s9SelectRow(event,3)">
+                      <td style="color:var(--muted);">#0035</td><td>[USER_07]</td><td>[VENDOR_D]</td><td>£ 12.00</td>
+                      <td style="color:var(--green);font-weight:600;">Policy OK</td>
+                      <td><span class="pill pill-l">Low</span></td>
+                      <td><button class="ui-btn ui-btn-green" style="padding:3px 8px;font-size:.65rem;" onclick="s9QuickApprove(event,3)">Approve</button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="l2-detail">
+              <div class="l2-detail-header"><h3 id="s9-detail-title">Violation Detail — #0042</h3><small id="s9-detail-sub">[USER_01] · £ 84.00 · 2026-04-22</small></div>
+              <div class="l2-receipt-img">
+                <div style="font-size:.64rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;">Redacted Receipt</div>
+                <div class="receipt-line"><span class="rl">Vendor</span><span class="rv">[VENDOR_REDACTED]</span></div>
+                <div class="receipt-line"><span class="rl">Date</span><span class="rv" id="s9-r-date">22 Apr 2026</span></div>
+                <div class="receipt-line"><span class="rl" id="s9-r-item-lbl">Meals × 2</span><span class="rv" id="s9-r-item-val">£ 70.00</span></div>
+                <div class="receipt-line"><span class="rl" id="s9-r-sub-lbl">Service</span><span class="rv" id="s9-r-sub-val">£ 14.00</span></div>
+                <div class="receipt-line receipt-total"><span class="rl">Total</span><span class="rv" id="s9-r-total" style="color:var(--red);">£ 84.00</span></div>
+              </div>
+              <div class="l2-policy-box">
+                <div class="pb-title" id="s9-policy-title">⚠ Policy Violation Detected</div>
+                <p id="s9-policy-text">Amount £84.00 exceeds the company meal limit of £50 per person. Auditor Agent confidence: 98%. Policy ref: FIN-POL-007.</p>
+              </div>
+              <div class="l2-override">
+                <div class="ov-title">⚖ Article 14 Override — Mandatory Justification</div>
+                <textarea class="ov-textarea" id="s9-override-text" placeholder="Enter reason for override (required)…"></textarea>
+                <div style="display:flex;gap:6px;margin-top:7px;">
+                  <button class="ui-btn ui-btn-red" id="s9-detail-reject" style="font-size:.67rem;" onclick="s9Reject(event)">Reject &amp; Escalate</button>
+                  <button class="ui-btn ui-btn-green" id="s9-detail-approve" style="font-size:.67rem;margin-left:auto;" onclick="s9Approve(event)">Approve with Reason</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="gdpr-footer">&#128274; All identifiers masked. Human override logged immutably per Article 12. — Processed by Compliance AI v1.2</div>
+      <div class="demo-toast" id="s9-toast"></div>
+    </div>
+    </div><!-- /demo-mat -->
+  </div>
+  <div id="progress-track"><div id="progress-fill" style="width:81.8%"></div></div>
+</div>
+
+<!-- ══ S10 DEMO LAYER 3 ═══════════════════════════════════ -->
+<div class="slide">
+  <div class="accent-bar"></div>
+  <div class="slide-header">
+    <div class="logo-mark">C</div><span class="logo-text">ComplianceGuard</span>
+    <span class="badge-ai">✦ Compliance AI v1.2</span><span class="slide-num">10 / 11</span>
+  </div>
+  <div class="slide-body" style="padding:12px 16px 12px;gap:10px;">
+    <div class="demo-label-bar">
+      <div class="eyebrow ey-demo">▶ Demo — Layer 3</div>
+      <span style="font-size:.82rem;font-weight:700;color:var(--text);margin-left:10px;">Tax &amp; Compliance Hub</span>
+      <span style="font-size:.73rem;color:var(--muted);margin-left:8px;">— Tax Expert Agent: slab assignment → audit log → digital seal</span>
+      <span class="badge-ai" style="margin-left:auto;">Art. 12 · Art. 86 · Expert Mode</span>
+    </div>
+    <div class="demo-mat reveal">
+      <div class="demo-mat-strip">
+        <div class="demo-mat-label">complianceguard · live demo</div>
+        <div class="demo-mat-dots"><div class="demo-mat-dot"></div><div class="demo-mat-dot"></div><div class="demo-mat-dot"></div></div>
+      </div>
+      <div class="demo-browser">
+        <div class="demo-chrome">
+          <div class="demo-chrome-dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+          <div class="demo-chrome-nav"><span>‹</span><span>›</span></div>
+          <div class="demo-url-wrap">
+            <span style="font-size:.68rem;">&#128274;</span>
+            <div class="demo-url">complianceguard.app/tax/hub</div>
+          </div>
+          <span style="font-size:.63rem;color:rgba(255,255,255,.35);padding-right:4px;">&#9881;</span>
+        </div>
+      <div class="app-page">
+        <div class="app-nav">
+          <div class="app-nav-logo"><div class="nm">C</div>ComplianceGuard</div>
+          <div class="nav-tabs" id="s10-nav" data-app="s10">
+            <div class="nav-tab" onclick="switchTab('s10',0,this)">Batch Queue</div>
+            <div class="nav-tab active" onclick="switchTab('s10',1,this)">Tax Hub</div>
+            <div class="nav-tab" onclick="switchTab('s10',2,this)">Audit Logs</div>
+            <div class="nav-tab" onclick="switchTab('s10',3,this)">Export</div>
+          </div>
+          <div class="nav-right">
+            <span class="ai-badge-sm" style="background:#fef3c7;color:var(--amber);border-color:#fde68a;">⚡ Expert Mode</span>
+            <span class="ai-badge-sm">✦ Compliance AI v1.2</span>
+            <div class="nav-avatar" style="background:var(--red-l);color:var(--red);border-color:#fca5a5;">TS</div>
+          </div>
+        </div>
+        <div class="app-body" id="s10-body">
+            <div class="l3-batch-list" id="s10-batch">
+              <div class="l3-batch-header">Batch Queue (5)</div>
+              <div class="l3-batch-item active" onclick="s10Select(event,0)">
+                <span><span class="bi-id">#0042</span> <span class="pill pill-h bi-pill" style="float:right;">High</span></span>
+                <div class="bi-emp">[USER_01] · £84.00</div>
+              </div>
+              <div class="l3-batch-item" onclick="s10Select(event,1)">
+                <span class="bi-id">#0039</span> <span class="pill pill-m bi-pill" style="float:right;">Med</span>
+                <div class="bi-emp">[USER_03] · £23.50</div>
+              </div>
+              <div class="l3-batch-item" onclick="s10Select(event,2)">
+                <span class="bi-id">#0035</span> <span class="pill pill-l bi-pill" style="float:right;">Low</span>
+                <div class="bi-emp">[USER_07] · £12.00</div>
+              </div>
+              <div class="l3-batch-item" onclick="s10Select(event,3)">
+                <span class="bi-id">#0031</span> <span class="pill pill-l bi-pill" style="float:right;">Low</span>
+                <div class="bi-emp">[USER_09] · £36.80</div>
+              </div>
+              <div class="l3-batch-item" onclick="s10Select(event,4)">
+                <span class="bi-id">#0028</span> <span class="pill pill-m bi-pill" style="float:right;">Med</span>
+                <div class="bi-emp">[USER_12] · £55.00</div>
+              </div>
+            </div>
+            <div class="l3-center" id="s10-center">
+              <div class="l3-slab-card">
+                <div style="flex:1;">
+                  <div class="sc-label">AI Tax Slab Assignment</div>
+                  <div class="sc-val" id="s10-slab-val">Standard Rate — 20%</div>
+                  <div style="font-size:.66rem;color:var(--muted);margin-top:3px;" id="s10-slab-ref">Ref: HMRC BM-A · Business Meal ≤ £50</div>
+                </div>
+                <div class="sc-conf">
+                  <div class="cv" id="s10-conf-val">94%</div>
+                  <div class="cl">Confidence</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:4px;">
+                  <div class="pulse-wrap"><div class="pulse-core"></div><div class="pulse-ring"></div></div>
+                  <span style="font-size:.64rem;color:var(--green);font-weight:600;">Live</span>
+                </div>
+              </div>
+              <div class="l3-bar-row">
+                <label><span>Confidence Score</span><span id="s10-conf-pct" style="color:var(--green);font-weight:700;">94%</span></label>
+                <div class="l3-bar-bg"><div class="l3-bar-fill" id="s10-conf-fill" style="width:94%;"></div></div>
+              </div>
+              <div class="l3-explain">
+                <div class="ex-title">💡 Art. 86 — Plain-Language Explanation</div>
+                <p id="s10-explain-text">This receipt was classified as <strong>Standard Rate (20%)</strong> because it is a business meal expense under £50, accompanied by a valid VAT receipt. HMRC category BM-A applies. No zero-rate or exempt conditions are present. Human specialist may override below.</p>
+              </div>
+              <div class="l3-actions" id="s10-actions">
+                <button class="ui-btn ui-btn-outline" onclick="s10Export(event)">Export JSON</button>
+                <button class="ui-btn" style="background:var(--amber-l);border:1px solid #fde68a;color:var(--amber);" onclick="s10Override(event)">Override Slab</button>
+                <button class="ui-btn ui-btn-primary" id="s10-seal-btn" style="margin-left:auto;" onclick="s10Seal(event)">🔏 Issue Compliance Seal</button>
+              </div>
+            </div>
+            <div class="l3-terminal">
+              <div class="l3-term-header">📋 Audit Log — Art. 12 Trail <span style="margin-left:auto;"><span style="width:6px;height:6px;background:#22c55e;border-radius:50%;display:inline-block;"></span> Live</span></div>
+              <div class="l3-term-body" id="s10-term">
+                <span style="color:#334155;">[09:14:01Z]</span> <span style="color:#a78bfa;font-weight:700;">SESSION_START   </span> <span style="color:#e2e8f0;">→ id: CGU-7F2A</span><br>
+                <span style="color:#334155;">[09:14:02Z]</span> <span style="color:#a78bfa;font-weight:700;">REDACTION_APPLIED</span> <span style="color:#e2e8f0;">→ NAME, IBAN</span><br>
+                <span style="color:#334155;">[09:14:02Z]</span> <span style="color:#a78bfa;font-weight:700;">OCR_COMPLETE    </span> <span style="color:#e2e8f0;">→ fields: 6/6</span><br>
+                <span style="color:#334155;">[09:14:03Z]</span> <span style="color:#a78bfa;font-weight:700;">GUIDE_VALIDATED </span> <span style="color:#e2e8f0;">→ vendor: WARN</span><br>
+                <span style="color:#334155;">[09:14:03Z]</span> <span style="color:#a78bfa;font-weight:700;">POLICY_CHECKED  </span> <span style="color:#e2e8f0;">→ meal: PASS</span><br>
+                <span style="color:#334155;">[09:14:03Z]</span> <span style="color:#a78bfa;font-weight:700;">POLICY_CHECKED  </span> <span style="color:#e2e8f0;">→ alcohol: PASS</span><br>
+                <span style="color:#334155;">[09:14:04Z]</span> <span style="color:#a78bfa;font-weight:700;">TAX_ASSIGNED    </span> <span style="color:#e2e8f0;">→ STANDARD_20</span><br>
+                <span style="color:#334155;">[09:14:04Z]</span> <span style="color:#fde68a;font-weight:700;">HITL_PENDING    </span> <span style="color:#e2e8f0;">→ awaiting seal</span><br>
+                <span style="color:#334155;">[09:14:05Z]</span> <span style="color:#86efac;font-weight:700;">AUDIT_SEALED ✅  </span> <span style="color:#e2e8f0;">→ CGU-7F2A</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="gdpr-footer">🔒 All PII masked by Kong. Compliance seal is cryptographically immutable. — Processed by Compliance AI v1.2</div>
+      <div class="demo-toast" id="s10-toast"></div>
+    </div>
+    </div><!-- /demo-mat -->
+  </div>
+  <div id="progress-track"><div id="progress-fill" style="width:90.9%"></div></div>
+</div>
+
+<!-- ══ S11 SUMMARY ════════════════════════════════════════ -->
+<div class="slide">
+  <div class="accent-bar"></div>
+  <div class="slide-header">
+    <div class="logo-mark">C</div><span class="logo-text">ComplianceGuard</span>
+    <span class="badge-ai">✦ Compliance AI v1.2</span><span class="slide-num">11 / 11</span>
+  </div>
+  <div class="slide-body reveal" style="justify-content:center;gap:26px;background:radial-gradient(ellipse at 80% 20%,rgba(99,102,241,.05) 0%,transparent 55%),var(--white)">
+    <div class="eyebrow ey-solution" style="align-self:center">✦ Summary</div>
+    <div class="slide-title" style="text-align:center;font-size:1.95rem">The Future of Payroll is <span class="accent">Automated,<br>Private &amp; Compliant.</span></div>
+    <div class="summary-stats">
+      <div class="stat-card"><div class="big">3</div><div class="lbl">Cognitive AI Layers</div><small>Guide · Auditor · Tax Expert</small></div>
+      <div class="stat-card"><div class="big" style="color:var(--green)">0</div><div class="lbl">PII Reaching the LLM</div><small>Kong sanitises every request</small></div>
+      <div class="stat-card"><div class="big" style="color:var(--red)">4</div><div class="lbl">EU AI Act Articles</div><small>Art. 12 · 14 · 50 · 86</small></div>
+      <div class="stat-card"><div class="big">100%</div><div class="lbl">Audit Trail</div><small>Immutable · Regulator-ready</small></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-top:4px">
+      <div class="ui-btn ui-btn-primary" style="font-size:.87rem;padding:10px 24px;cursor:default">github.com / payroll-verifier</div>
+      <div style="font-size:.82rem;color:var(--muted)">Built for Azets × Kong Hackathon 2026</div>
+    </div>
+  </div>
+  <div id="progress-track"><div id="progress-fill" style="width:100%"></div></div>
+</div>
+
+</div><!-- /deck -->
+</div><!-- /scale-wrap -->
+
+<audio id="slide-audio" preload="auto"></audio>
+
+<div id="nav">
+  <div class="nav-btn" id="prev">&#8592;</div>
+  <div id="slide-counter">1 / 11</div>
+  <div class="nav-btn" id="next">&#8594;</div>
+  <div id="audio-btn" title="Play/Pause voiceover (P)">
+    <span class="wave-icon">🔊</span>
+    <div class="wave-bars">
+      <div class="wave-bar"></div><div class="wave-bar"></div>
+      <div class="wave-bar"></div><div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Slide navigation ────────────────────────────────────────
+const slides  = Array.from(document.querySelectorAll('.slide'));
+const counter = document.getElementById('slide-counter');
+let current = 0, animating = false;
+
+function goTo(n, dir) {
+  if (animating) return;
+  const next = Math.max(0, Math.min(n, slides.length - 1));
+  if (next === current) return;
+  stopAudio();
+  animating = true;
+  const outCls = dir > 0 ? 'exit-r' : 'exit-l';
+  const inCls  = dir > 0 ? 'enter-r' : 'enter-l';
+  const old = slides[current];
+  slides[next].classList.add('active', inCls);
+  const body = slides[next].querySelector('.slide-body');
+  if (body) { body.classList.remove('reveal'); void body.offsetWidth; body.classList.add('reveal'); }
+  old.classList.add(outCls);
+  setTimeout(() => {
+    old.classList.remove('active', outCls);
+    slides[next].classList.remove(inCls);
+    current = next;
+    counter.textContent = (current + 1) + ' / ' + slides.length;
+    animating = false;
+  }, 420);
+}
+
+document.getElementById('next').addEventListener('click', () => goTo(current + 1, +1));
+document.getElementById('prev').addEventListener('click', () => goTo(current - 1, -1));
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+  if (e.key === 'p' || e.key === 'P') { toggleAudio(); return; }
+  if (e.key==='ArrowRight'||e.key==='ArrowDown'||e.key===' '){e.preventDefault();goTo(current+1,+1);}
+  if (e.key==='ArrowLeft' ||e.key==='ArrowUp')               {e.preventDefault();goTo(current-1,-1);}
+});
+let tx=0;
+document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});
+document.addEventListener('touchend',  e=>{const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>50)goTo(current+(dx<0?1:-1),dx<0?1:-1);},{passive:true});
+
+// ── Scale to viewport ──────────────────────────────────────
+function scale() {
+  const s = Math.min(window.innerWidth/1280, window.innerHeight/720) * 0.97;
+  document.getElementById('deck').style.transform = 'scale('+s+')';
+}
+window.addEventListener('resize', scale);
+scale();
+
+// ── Audio voiceover ────────────────────────────────────────
+const AUDIO_FILES = [
+  'audio/slide_01_title.mp3',
+  'audio/slide_02_problem.mp3',
+  'audio/slide_03_difficulties.mp3',
+  'audio/slide_04_consequences.mp3',
+  'audio/slide_05_solution.mp3',
+  'audio/slide_06_architecture.mp3',
+  'audio/slide_07_benefits.mp3',
+  'audio/slide_08_demo_layer1.mp3',
+  'audio/slide_09_demo_layer2.mp3',
+  'audio/slide_10_demo_layer3.mp3',
+  'audio/slide_11_summary.mp3',
+];
+
+const audioEl  = document.getElementById('slide-audio');
+const audioBtn = document.getElementById('audio-btn');
+
+function loadSlideAudio(idx) {
+  const src = AUDIO_FILES[idx];
+  if (!src) return;
+  audioEl.src = src;
+  audioEl.load();
+}
+
+function playAudio() {
+  loadSlideAudio(current);
+  audioEl.play().then(() => {
+    audioBtn.classList.add('playing');
+  }).catch(() => {
+    audioBtn.classList.remove('playing');
+  });
+}
+
+function stopAudio() {
+  audioEl.pause();
+  audioEl.currentTime = 0;
+  audioBtn.classList.remove('playing');
+}
+
+function toggleAudio() {
+  if (audioEl.paused) {
+    playAudio();
+  } else {
+    stopAudio();
+  }
+}
+
+audioEl.addEventListener('ended', () => {
+  audioBtn.classList.remove('playing');
+});
+
+audioEl.addEventListener('pause', () => {
+  audioBtn.classList.remove('playing');
+});
+
+audioEl.addEventListener('play', () => {
+  audioBtn.classList.add('playing');
+});
+
+audioBtn.addEventListener('click', toggleAudio);
+
+// Pre-load first slide audio
+loadSlideAudio(0);
+
+// ════════════════════════════════════════════════
+// TAB SWITCHING SYSTEM
+// ════════════════════════════════════════════════
+const TAB_CACHE = {}; // { appId: { tab: int, html: { tabIdx: html } } }
+const TAB_URLS = {
+  s8:  ['complianceguard.app/employee/submit','complianceguard.app/employee/submissions','complianceguard.app/employee/history'],
+  s9:  ['complianceguard.app/auditor/overview','complianceguard.app/auditor/violations','complianceguard.app/auditor/approved','complianceguard.app/auditor/reports'],
+  s10: ['complianceguard.app/tax/queue','complianceguard.app/tax/hub','complianceguard.app/tax/audit-logs','complianceguard.app/tax/export']
+};
+// Which tab index is the "default" (already in HTML)
+const TAB_DEFAULT = { s8: 0, s9: 1, s10: 1 };
+
+function switchTab(appId, tabIdx, el) {
+  const nav = document.getElementById(appId + '-nav');
+  const body = document.getElementById(appId + '-body');
+  if (!nav || !body) return;
+  // Active tab styling
+  nav.querySelectorAll('.nav-tab').forEach((t,i) => t.classList.toggle('active', i === tabIdx));
+  // Init cache
+  if (!TAB_CACHE[appId]) TAB_CACHE[appId] = { tab: TAB_DEFAULT[appId], html: {} };
+  const cache = TAB_CACHE[appId];
+  if (cache.tab === tabIdx) return;
+  // Save current panel HTML before leaving
+  cache.html[cache.tab] = body.innerHTML;
+  // Load target panel
+  if (cache.html[tabIdx] !== undefined) {
+    body.innerHTML = cache.html[tabIdx];
+  } else {
+    const panelFn = TAB_PANELS[appId] && TAB_PANELS[appId][tabIdx];
+    body.innerHTML = panelFn ? panelFn() : '<div class="tab-page" style="color:var(--muted);font-size:.8rem;">Coming soon…</div>';
+  }
+  cache.tab = tabIdx;
+  // Update URL bar
+  const browserEl = body.closest('.demo-browser');
+  if (browserEl) { const u = browserEl.querySelector('.demo-url'); if (u && TAB_URLS[appId]) u.textContent = TAB_URLS[appId][tabIdx] || u.textContent; }
+}
+
+// ─── S8 PANEL TEMPLATES ───────────────────────────────────
+const S8_SUBMISSIONS_HTML = `
+<div class="tab-page" style="padding-top:12px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <div style="font-size:.85rem;font-weight:700;color:var(--text);">My Submissions — April 2026</div>
+    <span style="font-size:.7rem;color:var(--muted);">[USER_01] · 5 entries</span>
+  </div>
+  <div style="overflow-x:auto;">
+  <table class="l2-table">
+    <thead><tr><th>Ref #</th><th>Date</th><th>Category</th><th>Amount</th><th>AI Flag</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      <tr><td style="color:var(--muted)">#0043</td><td>22 Apr 2026</td><td>Business Meal</td><td>£ 48.50</td>
+        <td><span style="color:var(--amber);font-weight:600;">⚠ Vendor missing</span></td>
+        <td><span class="pill" style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;">⏳ Pending</span></td>
+        <td><button class="ui-btn ui-btn-outline" style="padding:3px 9px;" onclick="showDemoToast('s8-toast','Viewing #0043…','#4f46e5')">View</button></td></tr>
+      <tr><td style="color:var(--muted)">#0037</td><td>18 Apr 2026</td><td>Transport</td><td>£ 22.00</td>
+        <td><span style="color:var(--green);font-weight:600;">✓ All clear</span></td>
+        <td><span class="pill" style="background:var(--green-l);color:var(--green);border:1px solid #86efac;">✓ Approved</span></td>
+        <td><button class="ui-btn ui-btn-outline" style="padding:3px 9px;" onclick="showDemoToast('s8-toast','Viewing #0037…','#4f46e5')">View</button></td></tr>
+      <tr><td style="color:var(--muted)">#0031</td><td>15 Apr 2026</td><td>Accommodation</td><td>£ 36.80</td>
+        <td><span style="color:var(--green);font-weight:600;">✓ All clear</span></td>
+        <td><span class="pill" style="background:var(--green-l);color:var(--green);border:1px solid #86efac;">✓ Approved</span></td>
+        <td><button class="ui-btn ui-btn-outline" style="padding:3px 9px;" onclick="showDemoToast('s8-toast','Viewing #0031…','#4f46e5')">View</button></td></tr>
+      <tr><td style="color:var(--muted)">#0028</td><td>12 Apr 2026</td><td>Client Dinner</td><td>£ 55.00</td>
+        <td><span style="color:var(--red);font-weight:600;">✗ Exceeds limit</span></td>
+        <td><span class="pill" style="background:var(--red-l);color:var(--red);border:1px solid #fca5a5;">✗ Rejected</span></td>
+        <td><button class="ui-btn ui-btn-outline" style="padding:3px 9px;" onclick="showDemoToast('s8-toast','Viewing rejection for #0028','#dc2626')">Details</button></td></tr>
+      <tr><td style="color:var(--muted)">#0019</td><td>08 Apr 2026</td><td>Office Supplies</td><td>£ 14.20</td>
+        <td><span style="color:var(--green);font-weight:600;">✓ All clear</span></td>
+        <td><span class="pill" style="background:var(--green-l);color:var(--green);border:1px solid #86efac;">✓ Approved</span></td>
+        <td><button class="ui-btn ui-btn-outline" style="padding:3px 9px;" onclick="showDemoToast('s8-toast','Viewing #0019…','#4f46e5')">View</button></td></tr>
+    </tbody>
+  </table>
+  </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+    <div style="color:var(--muted);">Total April 2026: £176.50 &nbsp;·&nbsp; <span style="color:var(--green)">3 Approved</span> &nbsp;·&nbsp; <span style="color:var(--amber)">1 Pending</span> &nbsp;·&nbsp; <span style="color:var(--red)">1 Rejected</span></div>
+    <button class="ui-btn ui-btn-outline" onclick="showDemoToast('s8-toast','📥 Exporting submissions CSV…','#1e293b')">Export CSV</button>
+  </div>
+  <div class="gdpr-footer" style="margin-top:4px;">🔒 Submission data is anonymised in transit. Receipt images stored encrypted per Art. 50.</div>
+</div>`;
+
+const S8_HISTORY_HTML = `
+<div class="tab-page" style="padding-top:12px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+    <div style="font-size:.85rem;font-weight:700;color:var(--text);">Submission History</div>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <select class="override-select" style="width:auto;padding:3px 8px;font-size:.68rem;" onclick="event.stopPropagation()"><option>All time</option><option>Last 3 months</option><option>2026</option><option>2025</option></select>
+      <button class="ui-btn ui-btn-outline" style="font-size:.67rem;" onclick="showDemoToast('s8-toast','📥 Archive downloaded','#1e293b')">Download Archive</button>
+    </div>
+  </div>
+  <div style="overflow-x:auto;">
+  <table class="l2-table">
+    <thead><tr><th>Ref #</th><th>Period</th><th>Category</th><th>Amount</th><th>Status</th><th>Auditor</th><th>Sealed</th></tr></thead>
+    <tbody>
+      <tr><td style="color:var(--muted)">#0037</td><td>Apr 2026</td><td>Transport</td><td>£ 22.00</td><td><span class="pill pill-l">Approved</span></td><td>[AUDIT_03]</td><td>🔏 <span style="color:var(--green);">CGU-4B1C</span></td></tr>
+      <tr><td style="color:var(--muted)">#0031</td><td>Apr 2026</td><td>Accommodation</td><td>£ 36.80</td><td><span class="pill pill-l">Approved</span></td><td>[AUDIT_01]</td><td>🔏 <span style="color:var(--green);">CGU-9D2E</span></td></tr>
+      <tr><td style="color:var(--muted)">#0028</td><td>Apr 2026</td><td>Client Dinner</td><td>£ 55.00</td><td><span class="pill pill-h">Rejected</span></td><td>[AUDIT_02]</td><td><span style="color:var(--muted);">N/A</span></td></tr>
+      <tr><td style="color:var(--muted)">#0019</td><td>Apr 2026</td><td>Office Supplies</td><td>£ 14.20</td><td><span class="pill pill-l">Approved</span></td><td>[AUDIT_01]</td><td>🔏 <span style="color:var(--green);">CGU-2F7A</span></td></tr>
+      <tr><td style="color:var(--muted)">#0011</td><td>Mar 2026</td><td>Business Meal</td><td>£ 34.00</td><td><span class="pill pill-l">Approved</span></td><td>[AUDIT_03]</td><td>🔏 <span style="color:var(--green);">CGU-A103</span></td></tr>
+      <tr><td style="color:var(--muted)">#0008</td><td>Mar 2026</td><td>Travel</td><td>£ 89.00</td><td><span class="pill pill-l">Approved</span></td><td>[AUDIT_02]</td><td>🔏 <span style="color:var(--green);">CGU-C81B</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="gdpr-footer" style="margin-top:8px;">🔏 Compliance seals are cryptographically immutable. All records retained per HMRC 6-year rule.</div>
+</div>`;
+
+// ─── S9 PANEL TEMPLATES ───────────────────────────────────
+function s9OverviewHTML() {
+  return `<div class="tab-page">
+  <div class="kpi-row">
+    <div class="kpi-card"><div class="kpi-val">47</div><div class="kpi-lbl">Total Submitted</div><div class="kpi-delta" style="color:var(--muted)">↑ 12 vs last week</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color:var(--red)">8</div><div class="kpi-lbl">Policy Violations</div><div class="kpi-delta" style="color:var(--red)">↑ 3 new today</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color:var(--green)">36</div><div class="kpi-lbl">Approved</div><div class="kpi-delta" style="color:var(--green)">↑ 7 today</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color:var(--amber)">3</div><div class="kpi-lbl">Pending HITL</div><div class="kpi-delta" style="color:var(--amber)">⏳ Awaiting auditor</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+    <div class="insight-card">
+      <div class="insight-title">📊 Violation Breakdown</div>
+      <div class="mini-bar-row"><span class="mini-bar-label">Meal Limit</span><div class="mini-bar-bg"><div class="mini-bar-fill" style="width:52%;background:var(--red)"></div></div><span style="color:var(--muted);margin-left:4px;">4</span></div>
+      <div class="mini-bar-row"><span class="mini-bar-label">Weekend Sub.</span><div class="mini-bar-bg"><div class="mini-bar-fill" style="width:25%;background:var(--amber)"></div></div><span style="color:var(--muted);margin-left:4px;">2</span></div>
+      <div class="mini-bar-row"><span class="mini-bar-label">Alcohol Ban</span><div class="mini-bar-bg"><div class="mini-bar-fill" style="width:13%;background:#9333ea"></div></div><span style="color:var(--muted);margin-left:4px;">1</span></div>
+      <div class="mini-bar-row"><span class="mini-bar-label">Missing VAT</span><div class="mini-bar-bg"><div class="mini-bar-fill" style="width:13%;background:var(--indigo2)"></div></div><span style="color:var(--muted);margin-left:4px;">1</span></div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-title">🤖 Auditor Agent Insights</div>
+      <div class="insight-text">
+        <div style="margin-bottom:5px;">📌 <strong>Trend:</strong> Meal limit violations up 40% vs. last month. Review FIN-POL-007 communication.</div>
+        <div style="margin-bottom:5px;">🔍 <strong>[USER_01]</strong> has 2 violations in 30 days — flag for manager review.</div>
+        <div>✅ <strong>AI accuracy:</strong> 98.4% violation detection rate this week. Zero false positives.</div>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;margin-top:2px;">
+    <button class="ui-btn ui-btn-primary" style="font-size:.7rem;" onclick="switchTab('s9',1,document.getElementById('s9-nav').children[1])">View All Violations →</button>
+    <button class="ui-btn ui-btn-outline" style="font-size:.7rem;" onclick="switchTab('s9',3,document.getElementById('s9-nav').children[3])">Generate Report</button>
+  </div>
+</div>`;
+}
+
+const S9_APPROVED_HTML = `
+<div class="tab-page" style="padding-top:12px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+    <div style="font-size:.85rem;font-weight:700;color:var(--text);">Approved Expenses <span style="color:var(--green);margin-left:6px;">36 total</span></div>
+    <div style="display:flex;gap:6px;">
+      <button class="ui-btn ui-btn-outline" style="font-size:.67rem;" onclick="showDemoToast('s9-toast','📥 Exporting approved list…','#1e293b')">Export CSV</button>
+    </div>
+  </div>
+  <div style="overflow-x:auto;">
+  <table class="l2-table">
+    <thead><tr><th>Ref #</th><th>Employee</th><th>Vendor</th><th>Amount</th><th>Category</th><th>Auditor</th><th>Seal</th></tr></thead>
+    <tbody>
+      <tr><td style="color:var(--muted)">#0041</td><td>[USER_02]</td><td>[VENDOR_E]</td><td>£ 18.00</td><td>Transport</td><td>[AUDIT_01]</td><td><span style="color:var(--green);font-weight:700;">🔏 CGU-A1B2</span></td></tr>
+      <tr><td style="color:var(--muted)">#0040</td><td>[USER_04]</td><td>[VENDOR_F]</td><td>£ 32.50</td><td>Business Meal</td><td>[AUDIT_02]</td><td><span style="color:var(--green);font-weight:700;">🔏 CGU-C3D4</span></td></tr>
+      <tr><td style="color:var(--muted)">#0037</td><td>[USER_01]</td><td>[VENDOR_G]</td><td>£ 22.00</td><td>Transport</td><td>[AUDIT_03]</td><td><span style="color:var(--green);font-weight:700;">🔏 CGU-4B1C</span></td></tr>
+      <tr><td style="color:var(--muted)">#0036</td><td>[USER_06]</td><td>[VENDOR_H]</td><td>£ 45.00</td><td>Client Meal</td><td>[AUDIT_01]</td><td><span style="color:var(--green);font-weight:700;">🔏 CGU-E5F6</span></td></tr>
+      <tr><td style="color:var(--muted)">#0035</td><td>[USER_07]</td><td>[VENDOR_D]</td><td>£ 12.00</td><td>Misc</td><td>[AUDIT_02]</td><td><span style="color:var(--green);font-weight:700;">🔏 CGU-9D2E</span></td></tr>
+      <tr><td style="color:var(--muted)">#0034</td><td>[USER_08]</td><td>[VENDOR_I]</td><td>£ 28.70</td><td>Office Supplies</td><td>[AUDIT_03]</td><td><span style="color:var(--green);font-weight:700;">🔏 CGU-7H8J</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div style="font-size:.75rem;color:var(--muted);margin-top:6px;">Showing 6 of 36 · Total approved value this period: <strong>£ 1,847.20</strong></div>
+  <div class="gdpr-footer">🔏 All approved expenses carry immutable compliance seals per Art. 12. Records retained 6 years.</div>
+</div>`;
+
+function s9ReportsHTML() {
+  return `<div class="tab-page">
+  <div style="font-size:.85rem;font-weight:700;color:var(--text);margin-bottom:8px;">Compliance Reports — April 2026</div>
+  <div class="report-grid">
+    <div class="report-card">
+      <div class="report-icon">📊</div>
+      <div class="report-title">Monthly Compliance Summary</div>
+      <div class="report-desc">47 submissions, 8 violations, 36 approved. AI accuracy: 98.4%. Art. 14 overrides: 3.</div>
+      <button class="ui-btn ui-btn-primary" onclick="showDemoToast('s9-toast','📄 Generating PDF report…','#4f46e5')">Generate PDF</button>
+    </div>
+    <div class="report-card">
+      <div class="report-icon">🔍</div>
+      <div class="report-title">Violation Analysis</div>
+      <div class="report-desc">Breakdown by policy type, employee, department. Trend vs. last 3 months.</div>
+      <button class="ui-btn ui-btn-outline" onclick="showDemoToast('s9-toast','📥 Exporting violation analysis…','#1e293b')">Export CSV</button>
+    </div>
+    <div class="report-card">
+      <div class="report-icon">🔏</div>
+      <div class="report-title">Audit Trail (Art. 12)</div>
+      <div class="report-desc">Full immutable log of all AI decisions, HITL overrides, and compliance seals issued.</div>
+      <button class="ui-btn ui-btn-outline" onclick="showDemoToast('s9-toast','📥 Exporting audit trail JSON…','#1e293b')">Export JSON</button>
+    </div>
+    <div class="report-card">
+      <div class="report-icon">🧾</div>
+      <div class="report-title">HMRC Submission Pack</div>
+      <div class="report-desc">Ready-to-submit VAT reclaim pack with all sealed receipts and AI annotations.</div>
+      <button class="ui-btn" style="background:var(--green-l);border:1px solid #86efac;color:var(--green);" onclick="showDemoToast('s9-toast','📦 Building HMRC pack…','#16a34a')">Build Pack</button>
+    </div>
+    <div class="report-card">
+      <div class="report-icon">⚖</div>
+      <div class="report-title">Art. 14 Override Log</div>
+      <div class="report-desc">All human-in-the-loop decisions with mandatory justifications. 3 overrides this period.</div>
+      <button class="ui-btn ui-btn-outline" onclick="showDemoToast('s9-toast','📥 Exporting Art. 14 log…','#1e293b')">Export</button>
+    </div>
+    <div class="report-card">
+      <div class="report-icon">📅</div>
+      <div class="report-title">Scheduled Reports</div>
+      <div class="report-desc">Configure auto-send to CFO/HMRC. Next scheduled: Monday 06:00 UTC.</div>
+      <button class="ui-btn ui-btn-outline" onclick="showDemoToast('s9-toast','⚙ Opening schedule settings…','#1e293b')">Configure</button>
+    </div>
+  </div>
+</div>`;
+}
+
+// ─── S10 PANEL TEMPLATES ──────────────────────────────────
+const S10_BATCH_QUEUE_HTML = `
+<div class="tab-page" style="padding-top:12px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+    <div style="font-size:.85rem;font-weight:700;color:var(--text);">Batch Queue <span style="color:var(--indigo2);margin-left:6px;">5 pending</span></div>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <select class="override-select" style="width:auto;padding:3px 8px;font-size:.68rem;" onclick="event.stopPropagation()"><option>All risk levels</option><option>High only</option><option>Pending seal</option></select>
+      <button class="ui-btn ui-btn-primary" style="font-size:.67rem;" onclick="showDemoToast('s10-toast','🤖 Running batch tax assignment…','#4f46e5')">Run Batch AI</button>
+    </div>
+  </div>
+  <div style="overflow-x:auto;">
+  <table class="l2-table">
+    <thead><tr><th>Ref #</th><th>Employee</th><th>Amount</th><th>Risk</th><th>Tax Slab (AI)</th><th>Confidence</th><th>Status</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td style="color:var(--muted)">#0042</td><td>[USER_01]</td><td>£ 84.00</td><td><span class="pill pill-h">High</span></td><td>Standard 20%</td><td><span style="color:var(--green);font-weight:700;">94%</span></td><td><span style="color:var(--amber);font-weight:600;">⏳ Awaiting Seal</span></td><td><button class="ui-btn ui-btn-primary" style="padding:3px 9px;" onclick="switchTab('s10',1,document.getElementById('s10-nav').children[1]);showDemoToast('s10-toast','Loaded #0042 in Tax Hub','#4f46e5')">Open →</button></td></tr>
+      <tr><td style="color:var(--muted)">#0039</td><td>[USER_03]</td><td>£ 23.50</td><td><span class="pill pill-m">Med</span></td><td>Zero Rate 0%</td><td><span style="color:var(--amber);font-weight:700;">87%</span></td><td><span style="color:var(--amber);font-weight:600;">⏳ Review</span></td><td><button class="ui-btn ui-btn-outline" style="padding:3px 9px;" onclick="showDemoToast('s10-toast','Loading #0039…','#4f46e5')">Open →</button></td></tr>
+      <tr><td style="color:var(--muted)">#0035</td><td>[USER_07]</td><td>£ 12.00</td><td><span class="pill pill-l">Low</span></td><td>Standard 20%</td><td><span style="color:var(--green);font-weight:700;">99%</span></td><td><span style="color:var(--green);font-weight:600;">✓ Ready to seal</span></td><td><button class="ui-btn" style="background:var(--green-l);border:1px solid #86efac;color:var(--green);padding:3px 9px;" onclick="showDemoToast('s10-toast','🔏 Auto-sealing #0035 (99% confidence)…','#16a34a')">Auto-seal</button></td></tr>
+      <tr><td style="color:var(--muted)">#0031</td><td>[USER_09]</td><td>£ 36.80</td><td><span class="pill pill-l">Low</span></td><td>Reduced 5%</td><td><span style="color:var(--amber);font-weight:700;">76%</span></td><td><span style="color:var(--amber);font-weight:600;">⏳ Review</span></td><td><button class="ui-btn ui-btn-outline" style="padding:3px 9px;" onclick="showDemoToast('s10-toast','Loading #0031…','#4f46e5')">Open →</button></td></tr>
+      <tr><td style="color:var(--muted)">#0028</td><td>[USER_12]</td><td>£ 55.00</td><td><span class="pill pill-m">Med</span></td><td>Standard 20%</td><td><span style="color:var(--green);font-weight:700;">91%</span></td><td><span style="color:var(--amber);font-weight:600;">⏳ Awaiting Seal</span></td><td><button class="ui-btn ui-btn-outline" style="padding:3px 9px;" onclick="showDemoToast('s10-toast','Loading #0028…','#4f46e5')">Open →</button></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div style="font-size:.75rem;color:var(--muted);margin-top:6px;">Total batch value: <strong>£ 211.30</strong> · 1 auto-sealable (≥98%) · 4 require review</div>
+</div>`;
+
+function s10AuditLogsHTML() {
+  const now = new Date().toISOString().slice(0,10);
+  return `<div style="flex:1;display:flex;flex-direction:column;padding:10px;gap:8px;overflow:hidden;">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+    <div style="font-size:.82rem;font-weight:700;color:var(--text);">Full Audit Trail — Art. 12 <span style="color:var(--green);margin-left:8px;">● Live</span></div>
+    <div style="display:flex;gap:6px;">
+      <select class="override-select" style="width:auto;padding:3px 8px;font-size:.68rem;" onclick="event.stopPropagation()"><option>All entries</option><option>Seals only</option><option>HITL events</option><option>Violations</option></select>
+      <button class="ui-btn ui-btn-outline" onclick="showDemoToast('s10-toast','📥 Exporting full audit log…','#1e293b')">Export</button>
+    </div>
+  </div>
+  <div class="full-term">
+<span style="color:#334155;">[09:14:01Z ${now}]</span> <span style="color:#a78bfa;font-weight:700;">SESSION_START    </span> <span style="color:#e2e8f0;">→ id: CGU-7F2A · user: [USER_01]</span><br>
+<span style="color:#334155;">[09:14:02Z ${now}]</span> <span style="color:#a78bfa;font-weight:700;">REDACTION_APPLIED</span> <span style="color:#e2e8f0;">→ fields: NAME, IBAN, VAT_NO</span><br>
+<span style="color:#334155;">[09:14:02Z ${now}]</span> <span style="color:#a78bfa;font-weight:700;">OCR_COMPLETE     </span> <span style="color:#e2e8f0;">→ fields: 6/6 · engine: EasyOCR</span><br>
+<span style="color:#334155;">[09:14:03Z ${now}]</span> <span style="color:#a78bfa;font-weight:700;">KONG_GATEWAY     </span> <span style="color:#e2e8f0;">→ PII_SCRUB OK · 0 raw tokens sent to LLM</span><br>
+<span style="color:#334155;">[09:14:03Z ${now}]</span> <span style="color:#a78bfa;font-weight:700;">GUIDE_VALIDATED  </span> <span style="color:#e2e8f0;">→ vendor: WARN · amount: OK · date: OK</span><br>
+<span style="color:#334155;">[09:14:03Z ${now}]</span> <span style="color:#a78bfa;font-weight:700;">POLICY_CHECKED   </span> <span style="color:#e2e8f0;">→ meal_limit: FAIL £84 > £50 · ref: FIN-POL-007</span><br>
+<span style="color:#334155;">[09:14:04Z ${now}]</span> <span style="color:#fde68a;font-weight:700;">VIOLATION_RAISED </span> <span style="color:#e2e8f0;">→ risk: HIGH · escalated to auditor [AUDIT_02]</span><br>
+<span style="color:#334155;">[09:14:04Z ${now}]</span> <span style="color:#a78bfa;font-weight:700;">TAX_ASSIGNED     </span> <span style="color:#e2e8f0;">→ STANDARD_20 · conf: 94% · ref: HMRC BM-A</span><br>
+<span style="color:#334155;">[09:14:04Z ${now}]</span> <span style="color:#fde68a;font-weight:700;">HITL_PENDING     </span> <span style="color:#e2e8f0;">→ Art. 14 override required · awaiting seal</span><br>
+<span style="color:#334155;">[09:14:09Z ${now}]</span> <span style="color:#fde68a;font-weight:700;">HITL_OVERRIDE    </span> <span style="color:#e2e8f0;">→ auditor: [AUDIT_02] · action: APPROVED</span><br>
+<span style="color:#334155;">[09:14:09Z ${now}]</span> <span style="color:#fde68a;font-weight:700;">OVERRIDE_REASON  </span> <span style="color:#e2e8f0;">→ "Client meeting pre-approved by mgr"</span><br>
+<span style="color:#334155;">[09:14:10Z ${now}]</span> <span style="color:#86efac;font-weight:700;">COMPLIANCE_SEAL  </span> <span style="color:#e2e8f0;">→ 🔏 CGU-7F2A · SHA256: 3e5a91… immutable</span><br>
+<span style="color:#334155;">[09:14:10Z ${now}]</span> <span style="color:#86efac;font-weight:700;">AUDIT_COMPLETE ✅ </span> <span style="color:#e2e8f0;">→ ref #0042 fully processed · Art. 12 compliant</span>
+  </div>
+</div>`;
+}
+
+function s10ExportHTML() {
+  return `<div class="tab-page" style="justify-content:center;align-items:center;">
+  <div class="export-wizard">
+    <div style="font-size:.85rem;font-weight:700;color:var(--text);margin-bottom:2px;">Export Compliance Data</div>
+    <div class="export-section">
+      <h4>1. Select Format</h4>
+      <div class="format-btns">
+        <div class="format-btn sel" onclick="this.closest('.format-btns').querySelectorAll('.format-btn').forEach(b=>b.classList.remove('sel'));this.classList.add('sel')">📄 PDF Report</div>
+        <div class="format-btn" onclick="this.closest('.format-btns').querySelectorAll('.format-btn').forEach(b=>b.classList.remove('sel'));this.classList.add('sel')">📊 CSV Spreadsheet</div>
+        <div class="format-btn" onclick="this.closest('.format-btns').querySelectorAll('.format-btn').forEach(b=>b.classList.remove('sel'));this.classList.add('sel')">📦 JSON Audit Bundle</div>
+        <div class="format-btn" onclick="this.closest('.format-btns').querySelectorAll('.format-btn').forEach(b=>b.classList.remove('sel'));this.classList.add('sel')">🧾 HMRC Pack</div>
+      </div>
+    </div>
+    <div class="export-section">
+      <h4>2. Date Range</h4>
+      <div style="display:flex;gap:8px;">
+        <input type="text" class="override-select" value="2026-04-01" style="flex:1;" onclick="event.stopPropagation()" readonly>
+        <span style="font-size:.75rem;color:var(--muted);align-self:center;">→</span>
+        <input type="text" class="override-select" value="2026-04-28" style="flex:1;" onclick="event.stopPropagation()" readonly>
+      </div>
+    </div>
+    <div class="export-section">
+      <h4>3. Include</h4>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;font-size:.75rem;">
+        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;"><input type="checkbox" checked onclick="event.stopPropagation()"> Compliance Seals</label>
+        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;"><input type="checkbox" checked onclick="event.stopPropagation()"> Art. 12 Audit Trail</label>
+        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;"><input type="checkbox" checked onclick="event.stopPropagation()"> Art. 14 Override Log</label>
+        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;"><input type="checkbox" onclick="event.stopPropagation()"> Raw Receipt Images</label>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px;">
+      <button class="ui-btn ui-btn-outline" onclick="showDemoToast('s10-toast','👁 Generating preview…','#1e293b')">Preview</button>
+      <button class="ui-btn ui-btn-primary" onclick="showDemoToast('s10-toast','📥 Export started — download ready shortly','#16a34a')">⬇ Download Export</button>
+    </div>
+    <div class="gdpr-footer" style="margin-top:0;">🔒 Exported files are encrypted. No PII leaves the system unmasked. Art. 50 compliant.</div>
+  </div>
+</div>`;
+}
+
+const TAB_PANELS = {
+  s8: [null, () => S8_SUBMISSIONS_HTML, () => S8_HISTORY_HTML],
+  s9: [s9OverviewHTML, null, () => S9_APPROVED_HTML, s9ReportsHTML],
+  s10:[() => S10_BATCH_QUEUE_HTML, null, s10AuditLogsHTML, s10ExportHTML]
+};
+// null means "already in HTML — use cache on return"
+
+
+function showDemoToast(id, msg, color) {
+  const t = document.getElementById(id);
+  if (!t) return;
+  t.textContent = msg;
+  t.style.background = color || '#1e293b';
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// ── S8 (Layer 1) — Employee Portal
+function s8Submit(e) {
+  e.stopPropagation();
+  const el = document.getElementById('s8-actions');
+  if (!el) return;
+  el.innerHTML = '<div class="submit-success"><div class="ss-icon">✅</div><div class="ss-ref">Submitted — Ref #0043 · Under Review</div><div class="ss-sub">AI Auditor assigned · You will be notified within 24 h</div><div class="ss-steps"><div class="ss-step"><span style="color:var(--green)">✓</span> Receipt OCR processed</div><div class="ss-step"><span style="color:var(--green)">✓</span> PII sanitised via Kong Gateway</div><div class="ss-step"><span style="color:var(--amber)">⏳</span> Awaiting auditor review</div></div></div>';
+  el.style.cssText = 'background:var(--green-l);border:1px solid #86efac;border-radius:10px;padding:10px;display:flex;justify-content:center;';
+}
+function s8Rescan(e) {
+  e.stopPropagation();
+  const bar = document.querySelector('#s8-dropzone .scan-bar');
+  if (bar) { bar.style.animation='none'; void bar.offsetWidth; bar.style.animation=''; }
+  showDemoToast('s8-toast', '🔍 Re-scanning receipt via EasyOCR…', '#4f46e5');
+}
+function s8Draft(e) {
+  e.stopPropagation();
+  showDemoToast('s8-toast', '💾 Draft saved · Ref #0043-draft', '#1e293b');
+}
+
+// ── S9 (Layer 2) — Auditor Dashboard
+const S9_DATA = [
+  { title:'Violation Detail — #0042', sub:'[USER_01] · £ 84.00 · 2026-04-22',
+    rDate:'22 Apr 2026', rIL:'Meals × 2', rIV:'£ 70.00', rSL:'Service', rSV:'£ 14.00', rTotal:'£ 84.00', rTotalColor:'var(--red)',
+    pTitle:'⚠ Policy Violation Detected',
+    pText:'Amount £84.00 exceeds the company meal limit of £50 per person. Auditor Agent confidence: 98%. Policy ref: FIN-POL-007.',
+    ph:'Enter override justification…' },
+  { title:'Violation Detail — #0039', sub:'[USER_03] · £ 23.50 · 2026-04-19',
+    rDate:'19 Apr 2026', rIL:'Coffee × 5', rIV:'£ 23.50', rSL:'VAT', rSV:'£ 0.00', rTotal:'£ 23.50', rTotalColor:'var(--amber)',
+    pTitle:'⚠ Weekend Submission Flagged',
+    pText:'Expense submitted on Saturday. Policy HR-POL-012 requires pre-approval for weekend claims. Auditor must verify business necessity.',
+    ph:'Enter weekend override justification…' },
+  { title:'Violation Detail — #0038', sub:'[USER_05] · £ 42.00 · 2026-04-18',
+    rDate:'18 Apr 2026', rIL:'Dinner × 2', rIV:'£ 32.00', rSL:'Wine × 1', rSV:'£ 10.00', rTotal:'£ 42.00', rTotalColor:'var(--red)',
+    pTitle:'🚫 Alcohol Purchase — Policy Banned',
+    pText:'Receipt contains alcohol (wine, £10.00). Policy FIN-POL-003 strictly bans alcohol expenses. No override available — must escalate.',
+    ph:'Escalation reason (required)…' },
+  { title:'Claim Detail — #0035', sub:'[USER_07] · £ 12.00 · 2026-04-15',
+    rDate:'15 Apr 2026', rIL:'Business Lunch × 1', rIV:'£ 12.00', rSL:'VAT', rSV:'£ 2.00', rTotal:'£ 12.00', rTotalColor:'var(--green)',
+    pTitle:'✅ Policy Compliant',
+    pText:'All expense rules met. Amount under £50 meal limit. Valid VAT receipt attached. No violations. Safe to approve immediately.',
+    ph:'Notes (optional)…' }
+];
+function s9SelectRow(e, n) {
+  e.stopPropagation();
+  document.querySelectorAll('#s9-table tbody tr').forEach((r,i) => r.classList.toggle('selected', i===n));
+  const v = S9_DATA[n]; if (!v) return;
+  document.getElementById('s9-detail-title').textContent = v.title;
+  document.getElementById('s9-detail-sub').textContent = v.sub;
+  document.getElementById('s9-r-date').textContent = v.rDate;
+  document.getElementById('s9-r-item-lbl').textContent = v.rIL;
+  document.getElementById('s9-r-item-val').textContent = v.rIV;
+  document.getElementById('s9-r-sub-lbl').textContent = v.rSL;
+  document.getElementById('s9-r-sub-val').textContent = v.rSV;
+  const tot = document.getElementById('s9-r-total');
+  tot.textContent = v.rTotal; tot.style.color = v.rTotalColor;
+  document.getElementById('s9-policy-title').textContent = v.pTitle;
+  document.getElementById('s9-policy-text').textContent = v.pText;
+  const ta = document.getElementById('s9-override-text');
+  ta.value = ''; ta.placeholder = v.ph; ta.style.border = '';
+  const ab = document.getElementById('s9-detail-approve');
+  ab.textContent = 'Approve with Reason'; ab.className = 'ui-btn ui-btn-green';
+  ab.style.fontSize = '.67rem'; ab.style.marginLeft = 'auto'; ab.disabled = false;
+  const rb = document.getElementById('s9-detail-reject');
+  rb.textContent = 'Reject & Escalate'; rb.className = 'ui-btn ui-btn-red';
+  rb.style.fontSize = '.67rem'; rb.disabled = false;
+}
+function s9Approve(e) {
+  e.stopPropagation();
+  const ta = document.getElementById('s9-override-text');
+  if (!ta.value.trim()) {
+    ta.style.border = '1.5px solid var(--amber)';
+    const orig = ta.placeholder;
+    ta.placeholder = '⚠ Justification required before approving…';
+    setTimeout(() => { ta.style.border=''; ta.placeholder=orig; }, 2200);
+    return;
+  }
+  const rows = document.querySelectorAll('#s9-table tbody tr');
+  const sel = [...rows].findIndex(r => r.classList.contains('selected'));
+  if (sel>=0) { rows[sel].classList.add('row-approved'); rows[sel].classList.remove('selected'); }
+  const btn = document.getElementById('s9-detail-approve');
+  btn.textContent = '✅ Approved & Logged'; btn.classList.add('btn-sealed'); btn.disabled = true;
+  showDemoToast('s9-toast', '✅ Override approved · Art. 14 audit trail updated', '#16a34a');
+}
+function s9Reject(e) {
+  e.stopPropagation();
+  const rows = document.querySelectorAll('#s9-table tbody tr');
+  const sel = [...rows].findIndex(r => r.classList.contains('selected'));
+  if (sel>=0) { rows[sel].classList.add('row-rejected'); rows[sel].classList.remove('selected'); }
+  const btn = document.getElementById('s9-detail-reject');
+  btn.textContent = '🚫 Escalated'; btn.disabled = true;
+  showDemoToast('s9-toast', '🚫 Escalated to Senior Auditor · Case logged', '#dc2626');
+}
+function s9QuickApprove(e, n) {
+  e.stopPropagation();
+  const rows = document.querySelectorAll('#s9-table tbody tr');
+  rows[n].classList.add('row-approved');
+  e.currentTarget.textContent = '✅'; e.currentTarget.disabled = true;
+  showDemoToast('s9-toast', '✅ #0035 approved — policy compliant', '#16a34a');
+}
+
+// ── S10 (Layer 3) — Tax Hub
+const S10_ITEMS = [
+  { slab:'Standard Rate — 20%', conf:94, ref:'HMRC BM-A · Business Meal ≤ £50',
+    explain:'This receipt was classified as <strong>Standard Rate (20%)</strong> because it is a business meal expense under £50, accompanied by a valid VAT receipt. HMRC category BM-A applies. No zero-rate or exempt conditions present.' },
+  { slab:'Zero Rate — 0%', conf:87, ref:'HMRC TRV-A · Business Travel',
+    explain:'Classified as <strong>Zero Rate (0%)</strong> because it relates to a qualifying business travel expense with no VAT applicable. HMRC category TRV-A. Confidence moderate — review recommended.' },
+  { slab:'Standard Rate — 20%', conf:99, ref:'HMRC BM-A · Business Meal ≤ £50',
+    explain:'High-confidence <strong>Standard Rate (20%)</strong> classification. Business lunch under £50 with valid VAT receipt. All compliance checks passed — perfect score.' },
+  { slab:'Reduced Rate — 5%', conf:76, ref:'HMRC ACC-C · Accommodation',
+    explain:'Classified as <strong>Reduced Rate (5%)</strong> based on accommodation indicators. Moderate confidence — human review recommended. HMRC category ACC-C may apply.' },
+  { slab:'Standard Rate — 20%', conf:91, ref:'HMRC BM-B · Client Entertainment',
+    explain:'Client dinner classified as <strong>Standard Rate (20%)</strong>. HMRC category BM-B (client entertainment). Verify client entertainment policy applies before sealing.' }
+];
+const S10_REFS = ['#0042','#0039','#0035','#0031','#0028'];
+function s10Select(e, n) {
+  e.stopPropagation();
+  document.querySelectorAll('#s10-batch .l3-batch-item').forEach((el,i) => el.classList.toggle('active', i===n));
+  const d = S10_ITEMS[n]; if (!d) return;
+  document.getElementById('s10-slab-val').textContent = d.slab;
+  document.getElementById('s10-conf-val').textContent = d.conf+'%';
+  document.getElementById('s10-conf-pct').textContent = d.conf+'%';
+  document.getElementById('s10-slab-ref').textContent = 'Ref: '+d.ref;
+  document.getElementById('s10-explain-text').innerHTML = d.explain+' Human specialist may override below.';
+  const fill = document.getElementById('s10-conf-fill');
+  fill.style.transition='none'; fill.style.width='0%';
+  setTimeout(()=>{ fill.style.transition='width 1s ease'; fill.style.width=d.conf+'%'; },60);
+  const sb = document.getElementById('s10-seal-btn');
+  sb.textContent='🔏 Issue Compliance Seal'; sb.classList.remove('btn-sealed'); sb.disabled=false;
+  const op = document.getElementById('s10-override-panel'); if(op) op.remove();
+  const term = document.getElementById('s10-term');
+  const now = new Date().toISOString().slice(11,19)+'Z';
+  term.innerHTML+=`<br><span style="color:#334155;">[${now}]</span> <span style="color:#a78bfa;font-weight:700;">ITEM_SELECTED   </span> <span style="color:#e2e8f0;">→ ${S10_REFS[n]} (${d.slab.split('—')[0].trim()})</span>`;
+  term.scrollTop=term.scrollHeight;
+}
+function s10Seal(e) {
+  e.stopPropagation();
+  const btn = document.getElementById('s10-seal-btn');
+  btn.textContent='✅ Sealed'; btn.classList.add('btn-sealed'); btn.disabled=true;
+  const term = document.getElementById('s10-term');
+  const now = new Date().toISOString().slice(11,19)+'Z';
+  const id = Math.random().toString(36).slice(2,6).toUpperCase();
+  term.innerHTML+=`<br><span style="color:#334155;">[${now}]</span> <span style="color:#86efac;font-weight:700;">SEAL_ISSUED ✅  </span> <span style="color:#e2e8f0;">→ CGU-${id} · HMRC</span>`;
+  term.scrollTop=term.scrollHeight;
+  showDemoToast('s10-toast',`🔏 Compliance seal CGU-${id} issued & logged`,'#16a34a');
+}
+function s10Override(e) {
+  e.stopPropagation();
+  if (document.getElementById('s10-override-panel')) return;
+  const panel = document.createElement('div');
+  panel.id='s10-override-panel'; panel.className='override-panel';
+  panel.innerHTML=`<h4>⚙ Override Tax Slab</h4><select class="override-select" id="s10-ov-sel"><option>Standard Rate — 20%</option><option>Reduced Rate — 5%</option><option>Zero Rate — 0%</option><option>Exempt</option></select><textarea class="override-reason" placeholder="Art. 86 justification required…"></textarea><div style="display:flex;gap:6px;justify-content:flex-end;margin-top:2px;"><button class="ui-btn ui-btn-outline" onclick="s10CancelOverride(event)" style="font-size:.68rem;">Cancel</button><button class="ui-btn ui-btn-primary" onclick="s10ConfirmOverride(event)" style="font-size:.68rem;">Apply Override</button></div>`;
+  const actions = document.getElementById('s10-actions');
+  actions.parentNode.insertBefore(panel, actions);
+}
+function s10CancelOverride(e) {
+  e.stopPropagation();
+  const p=document.getElementById('s10-override-panel'); if(p) p.remove();
+}
+function s10ConfirmOverride(e) {
+  e.stopPropagation();
+  const sel = document.getElementById('s10-ov-sel'); if(!sel) return;
+  const val = sel.value;
+  document.getElementById('s10-slab-val').textContent=val;
+  s10CancelOverride(e);
+  showDemoToast('s10-toast',`✏ Slab overridden → ${val} · Art. 86 logged`,'#d97706');
+}
+function s10Export(e) {
+  e.stopPropagation();
+  showDemoToast('s10-toast','📥 Audit JSON exported — download started','#1e293b');
+}
+</script>
+</body>
+</html>
